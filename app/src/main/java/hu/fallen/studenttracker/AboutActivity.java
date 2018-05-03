@@ -1,9 +1,8 @@
 package hu.fallen.studenttracker;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
