@@ -47,7 +47,10 @@ public class FallenCalendarView extends FrameLayout {
 
     private void onViewLevelChanged(Context context) {
         removeAllViews();
-        switch (viewLevel) {
+        switch (ViewLevel.fromId(viewLevel)) {
+            case yearList:
+                child = new YearListView(context);
+                break;
             default:
                 TextView placeholder = new TextView(context);
                 placeholder.setText(String.format(Locale.getDefault(), "viewLevel: %d", viewLevel));
@@ -57,4 +60,18 @@ public class FallenCalendarView extends FrameLayout {
         addView(child);
     }
 
+    private enum ViewLevel {
+        yearList(0), year(1), month(2), week(3), day(4);
+
+        private final int id;
+
+        ViewLevel(int id) { this.id = id; }
+
+        static ViewLevel fromId(int id) {
+            for (ViewLevel level : values()) {
+                if (level.id == id) return level;
+            }
+            throw new IllegalArgumentException();
+        }
+    }
 }
