@@ -12,19 +12,26 @@ import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class FallenCalendarView extends ConstraintLayout implements ScaleGestureDetector.OnScaleGestureListener {
 
     private final ScaleGestureDetector mScaleDetector;
     private ViewLevel viewLevel = ViewLevel.day;
-    private TextView debugView;
 
-    private Date mCalendar;
-    private DateFormat mDateFormat;
+    @BindView(R2.id.debug) TextView tvDebugView;
+    @BindView(R2.id.tv_viewlevel) TextView tvViewLevel;
+    @BindView(R2.id.tv_year) TextView tvYear;
+    @BindView(R2.id.tv_month) TextView tvMonth;
+    @BindView(R2.id.tv_day) TextView tvDay;
+
+    private Calendar mCalendar;
 
     public FallenCalendarView(@NonNull Context context) {
         this(context, null);
@@ -50,23 +57,24 @@ public class FallenCalendarView extends ConstraintLayout implements ScaleGesture
             a.recycle();
         }
 
-        debugView = findViewById(R.id.debug);
+        ButterKnife.bind(this, this);
 
-        mCalendar = new Date();
-        mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        mCalendar = Calendar.getInstance();
 
         mScaleDetector = new ScaleGestureDetector(context, this);
-        onViewLevelChanged(context);
+        onChanged();
     }
 
-    private void onViewLevelChanged(Context context) {
+    private void onChanged() {
         switch (viewLevel) {
             default:
-                if (debugView != null) {
-                    debugView.setText(String.format(Locale.getDefault(), "viewLevel: %s, date: %s", viewLevel, mDateFormat.format(mCalendar)));
-                }
+                tvDebugView.setText(String.format(Locale.getDefault(), "viewLevel: %s, date: %2$tY-%2$tm-%2$td", viewLevel, mCalendar));
                 break;
         }
+        tvYear.setText(String.format(Locale.getDefault(), "%tY", mCalendar));
+        tvMonth.setText(String.format(Locale.getDefault(), "%tm", mCalendar));
+        tvDay.setText(String.format(Locale.getDefault(), "%td", mCalendar));
+        tvViewLevel.setText(String.format(Locale.getDefault(), "%s", viewLevel));
     }
 
     @Override
@@ -95,7 +103,7 @@ public class FallenCalendarView extends ConstraintLayout implements ScaleGesture
         } else {
             viewLevel = viewLevel.prev();
         }
-        onViewLevelChanged(this.getContext());
+        onChanged();
     }
 
     private enum ViewLevel {
