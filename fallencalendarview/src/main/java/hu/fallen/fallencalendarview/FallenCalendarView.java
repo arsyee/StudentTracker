@@ -2,27 +2,59 @@ package hu.fallen.fallencalendarview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.CalendarView;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
-public class FallenCalendarView extends CalendarView {
+import java.util.Locale;
+
+public class FallenCalendarView extends FrameLayout {
+
+    private int viewLevel = 0;
+    private View child;
+
     public FallenCalendarView(@NonNull Context context) {
-        super(context);
+        this(context, null);
     }
 
     public FallenCalendarView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, R.attr.fallenCalendarViewStyle);
     }
 
     public FallenCalendarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        this(context, attrs, defStyleAttr, 0);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public FallenCalendarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
+        // TODO LOLLIPOP super should be called to propagate defStyleRes
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.FallenCalendarView, defStyleAttr, defStyleRes);
+        try {
+            viewLevel = a.getInteger(R.styleable.FallenCalendarView_viewLevel, 0);
+        } finally {
+            a.recycle();
+        }
+        onViewLevelChanged(context);
     }
+
+    private void onViewLevelChanged(Context context) {
+        removeAllViews();
+        switch (viewLevel) {
+            default:
+                TextView placeholder = new TextView(context);
+                placeholder.setText(String.format(Locale.getDefault(), "viewLevel: %d", viewLevel));
+                child = placeholder;
+                break;
+        }
+        addView(child);
+    }
+
 }

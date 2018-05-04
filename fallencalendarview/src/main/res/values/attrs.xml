@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FallenCalendarView">
+        <attr name="viewLevel" format="enum">
+            <enum name="yearlist" value="0" />
+            <enum name="year" value="1" />
+            <enum name="month" value="2" />
+            <enum name="week" value="3" />
+            <enum name="day" value="4" />
+        </attr>
+    </declare-styleable>
+
+    <attr name="fallenCalendarViewStyle">
+        <enum name="viewLevel" value="3" />
+    </attr>>
+</resources>
