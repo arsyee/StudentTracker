@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -31,6 +33,7 @@ public class FallenCalendarView extends ConstraintLayout
     @BindView(R2.id.tv_year) TextView tvYear;
     @BindView(R2.id.tv_month) TextView tvMonth;
     @BindView(R2.id.tv_day) TextView tvDay;
+    @BindView(R2.id.bt_today) Button btToday;
 
     private Calendar mCalendar;
 
@@ -59,6 +62,7 @@ public class FallenCalendarView extends ConstraintLayout
         }
 
         ButterKnife.bind(this, this);
+        btToday.setOnClickListener(new TodayButtonOnclickListener());
 
         mCalendar = Calendar.getInstance();
 
@@ -233,6 +237,14 @@ public class FallenCalendarView extends ConstraintLayout
             } else {
                 return values()[0];
             }
+        }
+    }
+
+    private class TodayButtonOnclickListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            mCalendar = Calendar.getInstance();
+            onChanged();
         }
     }
 }
