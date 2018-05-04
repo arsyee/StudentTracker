@@ -1,15 +1,18 @@
 package hu.fallen.fallencalendarview;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -34,6 +37,8 @@ public class FallenCalendarView extends ConstraintLayout
     @BindView(R2.id.tv_month) TextView tvMonth;
     @BindView(R2.id.tv_day) TextView tvDay;
     @BindView(R2.id.bt_today) Button btToday;
+
+    @BindView(R2.id.yv_year) WebView wvYear;
 
     private Calendar mCalendar;
 
@@ -63,6 +68,10 @@ public class FallenCalendarView extends ConstraintLayout
 
         ButterKnife.bind(this, this);
         btToday.setOnClickListener(new TodayButtonOnclickListener());
+        int fontSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, context.getResources().getDisplayMetrics());
+        Timber.d("WebView font size changed from %d to %d", wvYear.getSettings().getDefaultFontSize(), fontSize);
+        wvYear.getSettings().setDefaultFontSize(fontSize);
+        wvYear.getSettings().setStandardFontFamily("sans-serif-condensed");
 
         mCalendar = Calendar.getInstance();
 
@@ -81,6 +90,69 @@ public class FallenCalendarView extends ConstraintLayout
         tvMonth.setText(String.format(Locale.getDefault(), "%tm", mCalendar));
         tvDay.setText(String.format(Locale.getDefault(), "%td", mCalendar));
         tvViewLevel.setText(String.format(Locale.getDefault(), "%s", viewLevel));
+        int columnNum = 3;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            columnNum = 6;
+        }
+        wvYear.loadData(getYearCalendar(mCalendar, columnNum, getContext().getResources().getStringArray(R.array.days), getContext().getResources().getStringArray(R.array.months)), "text/html", null);
+    }
+
+    private static String getYearCalendar(Calendar calendar, int columnNum, String[] dayNames, String[] monthNames) {
+        int[] monthLength = {31, 28, 31,
+                             30, 31, 30,
+                             31, 31, 30,
+                             31, 30, 31};
+        if (calendar.getActualMaximum(Calendar.DAY_OF_YEAR) > 365) monthLength[1]++;
+
+        int firstDayOfWeek = calendar.getFirstDayOfWeek();
+        int firstDayOfYear = firstDayOfYear(calendar);
+
+        String header;
+        {
+            StringBuilder hb = new StringBuilder();
+            for (int i = 0; i < 7; ++i) {
+                int day = (firstDayOfWeek - 1 + i) % 7 + 1;
+                hb.append("<td>").append(dayNames[day].charAt(0)).append("</td>");
+            }
+            header = hb.toString();
+        }
+
+        int currentDayOfWeek = firstDayOfYear;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<table width='100%' height='100%'>");
+        for (int month = 0; month < 12; ++month) {
+            if (month % columnNum == 0) sb.append("<tr width='").append(100/columnNum).append("%'>");
+            sb.append("<td><font size='5'>");
+            sb.append(monthNames[month]);
+            sb.append("</font><table><tr>").append(header).append("</tr>");
+            int currentDayOfMonth = 1;
+            while (currentDayOfMonth <= monthLength[month]) {
+                sb.append("<tr>");
+                for (int i = 0; i < 7; ++i) {
+                    sb.append("<td>");
+                    int day = (firstDayOfWeek - 1 + i) % 7 + 1;
+                    if (currentDayOfMonth <= monthLength[month] && day == currentDayOfWeek) {
+                        sb.append(currentDayOfMonth);
+                        ++currentDayOfMonth;
+                        currentDayOfWeek = currentDayOfWeek % 7 + 1;
+                    }
+                    sb.append("</td>");
+                }
+                sb.append("</tr>");
+            }
+            sb.append("</table></td>");
+            if (month % columnNum == columnNum - 1) sb.append("</tr>");
+        }
+        sb.append("</table>");
+        return sb.toString();
+    }
+
+    static int firstDayOfYear(Calendar calendar) {
+        int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        final int MAX = 53 * 7;
+        return (MAX + dayOfWeek - dayOfYear) % 7 + 1;
     }
 
     @Override
