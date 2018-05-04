@@ -8,8 +8,8 @@
     tools:context=".CalendarActivity"
     tools:showIn="@layout/activity_calendar">
 
-    <CalendarView
+    <hu.fallen.fallencalendarview.FallenCalendarView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></CalendarView>
+        android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>
