@@ -4,22 +4,27 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import timber.log.Timber;
 
-public class FallenCalendarView extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener {
+public class FallenCalendarView extends ConstraintLayout implements ScaleGestureDetector.OnScaleGestureListener {
 
     private final ScaleGestureDetector mScaleDetector;
     private ViewLevel viewLevel = ViewLevel.day;
-    private View child;
+    private TextView debugView;
+
+    private Date mCalendar;
+    private DateFormat mDateFormat;
 
     public FallenCalendarView(@NonNull Context context) {
         this(context, null);
@@ -36,6 +41,7 @@ public class FallenCalendarView extends FrameLayout implements ScaleGestureDetec
     public FallenCalendarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr);
         Timber.d("FallenCalendarView created");
+        inflate(context, R.layout.fallen_calendar_view, this);
         // TODO LOLLIPOP super should be called to propagate defStyleRes
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.FallenCalendarView, defStyleAttr, defStyleRes);
         try {
@@ -44,23 +50,23 @@ public class FallenCalendarView extends FrameLayout implements ScaleGestureDetec
             a.recycle();
         }
 
+        debugView = findViewById(R.id.debug);
+
+        mCalendar = new Date();
+        mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
         mScaleDetector = new ScaleGestureDetector(context, this);
         onViewLevelChanged(context);
     }
 
     private void onViewLevelChanged(Context context) {
-        removeAllViews();
         switch (viewLevel) {
-            case yearList:
-                child = new YearListView(context);
-                break;
             default:
-                TextView placeholder = new TextView(context);
-                placeholder.setText(String.format(Locale.getDefault(), "viewLevel: %s", viewLevel));
-                child = placeholder;
+                if (debugView != null) {
+                    debugView.setText(String.format(Locale.getDefault(), "viewLevel: %s, date: %s", viewLevel, mDateFormat.format(mCalendar)));
+                }
                 break;
         }
-        addView(child);
     }
 
     @Override

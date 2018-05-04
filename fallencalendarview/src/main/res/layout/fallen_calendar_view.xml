@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/tv_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected date:" />
+
+    <TextView
+        android:id="@+id/tv_viewlevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="level"
+        app:layout_constraintTop_toBottomOf="@id/tv_label" />
+
+    <TextView
+        android:id="@+id/tv_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/tv_label"
+        app:layout_constraintTop_toTopOf="@id/tv_label"
+        app:layout_constraintBottom_toBottomOf="@id/tv_viewlevel"
+        tools:text="1983" />
+
+    <TextView
+        android:id="@+id/tv_month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/tv_year"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_year"
+        tools:text="April" />
+
+    <TextView
+        android:id="@+id/tv_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/tv_month"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_year"
+        tools:text="9" />
+
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Content"
+        app:layout_constraintTop_toBottomOf="@id/tv_viewlevel"
+        app:layout_constraintBottom_toTopOf="@id/debug"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="debug text" />
+
+</android.support.constraint.ConstraintLayout>
