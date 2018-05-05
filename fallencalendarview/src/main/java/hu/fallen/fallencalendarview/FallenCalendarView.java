@@ -212,6 +212,11 @@ public class FallenCalendarView extends ConstraintLayout
         return result || super.onTouchEvent(event);
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return onTouchEvent(ev) && super.dispatchTouchEvent(ev);
+    }
+
     // Implementation of ScaleGestureDetector.OnScaleGestureListener
 
     @Override
