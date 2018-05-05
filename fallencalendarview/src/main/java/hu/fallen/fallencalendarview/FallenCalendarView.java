@@ -2,6 +2,7 @@ package hu.fallen.fallencalendarview;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -74,6 +75,7 @@ public class FallenCalendarView extends ConstraintLayout
         wvYear.getSettings().setStandardFontFamily("sans-serif-condensed");
 
         mCalendar = Calendar.getInstance();
+        mCalendar.set(2018, 06, 12);
 
         mScaleDetector = new ScaleGestureDetector(context, this);
         mGestureDetector = new GestureDetector(context, this);
@@ -94,16 +96,25 @@ public class FallenCalendarView extends ConstraintLayout
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             columnNum = 6;
         }
-        wvYear.loadData(getYearCalendar(mCalendar, columnNum, getContext().getResources().getStringArray(R.array.days), getContext().getResources().getStringArray(R.array.months)), "text/html", null);
+        Resources res = getContext().getResources();
+        wvYear.loadData(getYearCalendar(mCalendar, columnNum, res.getStringArray(R.array.days), res.getStringArray(R.array.months), res.getString(R.string.year_css)), "text/html", null);
     }
 
-    private static String getYearCalendar(Calendar calendar, int columnNum, String[] dayNames, String[] monthNames) {
+    private static String getYearCalendar(Calendar calendar, int columnNum, String[] dayNames, String[] monthNames, String css) {
         int[] monthLength = {31, 28, 31,
                              30, 31, 30,
                              31, 31, 30,
                              31, 30, 31};
         if (calendar.getActualMaximum(Calendar.DAY_OF_YEAR) > 365) monthLength[1]++;
 
+        Calendar today = Calendar.getInstance();
+        int thisYear = today.get(Calendar.YEAR);
+        int thisMonth = today.get(Calendar.MONTH);
+        int thisDay = today.get(Calendar.DAY_OF_MONTH);
+
+        int selectedYear = calendar.get(Calendar.YEAR);
+        int selectedMonth = calendar.get(Calendar.MONTH);
+        int selectedDay = calendar.get(Calendar.DAY_OF_MONTH);
         int firstDayOfWeek = calendar.getFirstDayOfWeek();
         int firstDayOfYear = firstDayOfYear(calendar);
 
@@ -112,25 +123,56 @@ public class FallenCalendarView extends ConstraintLayout
             StringBuilder hb = new StringBuilder();
             for (int i = 0; i < 7; ++i) {
                 int day = (firstDayOfWeek - 1 + i) % 7 + 1;
-                hb.append("<td>").append(dayNames[day].charAt(0)).append("</td>");
+                hb.append("<th");
+                if (day == Calendar.SUNDAY) hb.append(" class='sunday'");
+                hb.append(">").append(dayNames[day].charAt(0)).append("</th>");
             }
             header = hb.toString();
         }
 
         int currentDayOfWeek = firstDayOfYear;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("<table width='100%' height='100%'>");
+        StringBuilder sb = new StringBuilder(16000); // less than 2^14 = 16384
+        sb.append("<html><head><style>\n").append(css).append("\n</style></head><body><table class='year'>");
         for (int month = 0; month < 12; ++month) {
             if (month % columnNum == 0) sb.append("<tr width='").append(100/columnNum).append("%'>");
             sb.append("<td><font size='5'>");
+            if (month == thisMonth) sb.append("<b>");
             sb.append(monthNames[month]);
+            if (month == thisMonth) sb.append("</b>");
             sb.append("</font><table><tr>").append(header).append("</tr>");
             int currentDayOfMonth = 1;
             while (currentDayOfMonth <= monthLength[month]) {
-                sb.append("<tr>");
+                boolean bThisWeek = selectedYear == thisYear && month == thisMonth && currentDayOfMonth <= thisDay && currentDayOfMonth + 7 > thisDay;
+                if (bThisWeek) {
+                    sb.append("<tr class='thisweek'>");
+                } else {
+                    sb.append("<tr>");
+                }
                 for (int i = 0; i < 7; ++i) {
-                    sb.append("<td>");
+                    String cssClass = null;
+                    if (selectedYear == thisYear && month == thisMonth && currentDayOfMonth == thisDay) {
+                        Timber.d("Today found: %d-%d", month, currentDayOfMonth);
+                        cssClass = "today";
+                    } else if (month == selectedMonth && currentDayOfMonth == selectedDay) {
+                        Timber.d("Selected found: %d-%d", month, currentDayOfMonth);
+                        cssClass = "current";
+                    }
+                    if (currentDayOfWeek == Calendar.SUNDAY) {
+                        if (cssClass == null) {
+                            cssClass = "sunday";
+                        } else {
+                            cssClass = cssClass + " sunday";
+                        }
+                    }
+                    if (cssClass == null){
+                        sb.append("<td>");
+                    } else {
+                        if (!cssClass.equals("sunday")) {
+                            Timber.d("Applying class '%s' to %s-%d", cssClass, monthNames[month], currentDayOfMonth);
+                        }
+                        sb.append("<td class='").append(cssClass).append("'>");
+                    }
                     int day = (firstDayOfWeek - 1 + i) % 7 + 1;
                     if (currentDayOfMonth <= monthLength[month] && day == currentDayOfWeek) {
                         sb.append(currentDayOfMonth);
@@ -144,7 +186,9 @@ public class FallenCalendarView extends ConstraintLayout
             sb.append("</table></td>");
             if (month % columnNum == columnNum - 1) sb.append("</tr>");
         }
-        sb.append("</table>");
+        sb.append("</table></body></html>");
+        Timber.d("Builder length: %d", sb.length());
+        // Timber.d(sb.toString());
         return sb.toString();
     }
 
