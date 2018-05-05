@@ -1,7 +1,9 @@
 package hu.fallen.fallencalendarview;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +14,8 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -19,8 +23,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
-public class FallenCalendarView extends ConstraintLayout implements DatePickerDialog.OnDateSetListener {
+public class FallenCalendarView extends ConstraintLayout
+        implements DatePickerDialog.OnDateSetListener, DialogInterface.OnClickListener {
 
+    public static final int YEAR_OFFSET_START = -1;
+    public static final int YEAR_OFFSET_END = 3;
     private ViewLevel viewLevel = ViewLevel.day;
 
     @BindView(R2.id.debug) TextView tvDebugView;
@@ -33,6 +40,7 @@ public class FallenCalendarView extends ConstraintLayout implements DatePickerDi
     @BindView(R2.id.yv_year) YearView wvYear;
 
     private Calendar mCalendar;
+    private int thisYear;
 
     public FallenCalendarView(@NonNull Context context) {
         this(context, null);
@@ -63,6 +71,7 @@ public class FallenCalendarView extends ConstraintLayout implements DatePickerDi
 
         ButterKnife.bind(this, this);
         tvDay.setOnClickListener(new DayOnClickListener());
+        tvYear.setOnClickListener(new YearOnClickListener());
         btToday.setOnClickListener(new TodayButtonOnClickListener());
 
         mCalendar = Calendar.getInstance();
@@ -154,4 +163,29 @@ public class FallenCalendarView extends ConstraintLayout implements DatePickerDi
         onChanged();
     }
 
+    private class YearOnClickListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(FallenCalendarView.this.getContext());
+            builder.setTitle(String.format(Locale.getDefault(), "%d - %s", mCalendar.get(Calendar.YEAR), getResources().getString(R.string.select_year)));
+            thisYear = Calendar.getInstance().get(Calendar.YEAR);
+            ArrayList<String> years = new ArrayList<>();
+            for (int i = YEAR_OFFSET_START; i < YEAR_OFFSET_END; ++i) {
+                years.add(Integer.toString(thisYear + i));
+            }
+            String[] yearArray = new String[years.size()];
+            yearArray = years.toArray(yearArray);
+            Timber.d("Adding %d items to builder", yearArray.length);
+            builder.setItems(yearArray, FallenCalendarView.this);
+            builder.create().show();
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        Timber.d("DialogInterface.OnClickListener.onClick called with: %d", which);
+        mCalendar.set(Calendar.YEAR, thisYear + YEAR_OFFSET_START + which);
+        viewLevel = ViewLevel.year;
+        onChanged();
+    }
 }

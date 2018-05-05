@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">FallenCalendarView</string>
+    <string name="select_year">Select Year</string>
+    <string name="select_year_title">Year</string>
+
     <string name="year_css" translatable="false">
         table {
             width: 100%;
