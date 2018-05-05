@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 
 public class FallenCalendarView extends ConstraintLayout
-        implements DatePickerDialog.OnDateSetListener, DialogInterface.OnClickListener {
+        implements DatePickerDialog.OnDateSetListener, DialogInterface.OnClickListener, YearView.OnMonthSelectListener {
 
     public static final int YEAR_OFFSET_START = -1;
     public static final int YEAR_OFFSET_END = 3;
@@ -73,6 +73,7 @@ public class FallenCalendarView extends ConstraintLayout
         tvDay.setOnClickListener(new DayOnClickListener());
         tvYear.setOnClickListener(new YearOnClickListener());
         btToday.setOnClickListener(new TodayButtonOnClickListener());
+        wvYear.addOnMonthSelectListener(this);
 
         mCalendar = Calendar.getInstance();
 
@@ -187,5 +188,18 @@ public class FallenCalendarView extends ConstraintLayout
         mCalendar.set(Calendar.YEAR, thisYear + YEAR_OFFSET_START + which);
         viewLevel = ViewLevel.year;
         onChanged();
+    }
+
+    @Override
+    public void onMonthSelect(final int month) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                Timber.d("Selected month: %d", month);
+                mCalendar.set(Calendar.MONTH, month);
+                viewLevel = ViewLevel.month;
+                onChanged();
+            }
+        });
     }
 }

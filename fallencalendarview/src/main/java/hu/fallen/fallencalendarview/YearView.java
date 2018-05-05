@@ -6,14 +6,17 @@ import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import timber.log.Timber;
 
 class YearView extends WebView {
     private Calendar mCalendar;
+    private ArrayList<OnMonthSelectListener> mOnMonthSelectListenerList = new ArrayList<>();
 
     public YearView(Context context) {
         this(context, null);
@@ -34,6 +37,8 @@ class YearView extends WebView {
         Timber.d("font size changed from %d to %d", getSettings().getDefaultFontSize(), fontSize);
         getSettings().setDefaultFontSize(fontSize);
         getSettings().setStandardFontFamily("sans-serif-condensed");
+        getSettings().setJavaScriptEnabled(true);
+        addJavascriptInterface(new MonthSelector(), "monthSelector");
     }
 
     static String getYearCalendar(Calendar calendar, int columnNum, String[] dayNames, String[] monthNames, String css) {
@@ -72,7 +77,7 @@ class YearView extends WebView {
         sb.append("<html><head><style>\n").append(css).append("\n</style></head><body><table class='year'>");
         for (int month = 0; month < 12; ++month) {
             if (month % columnNum == 0) sb.append("<tr width='").append(100/columnNum).append("%'>");
-            sb.append("<td><font size='5'>");
+            sb.append("<td onClick='monthSelector.select(").append(month).append(")'><font size='5'>");
             if (month == thisMonth) sb.append("<b>");
             sb.append(monthNames[month]);
             if (month == thisMonth) sb.append("</b>");
@@ -147,5 +152,30 @@ class YearView extends WebView {
                 "text/html",
                 null,
                 null);
+    }
+
+    public interface OnMonthSelectListener {
+        public void onMonthSelect(int month);
+    }
+
+    public void addOnMonthSelectListener(OnMonthSelectListener listener) {
+        mOnMonthSelectListenerList.add(listener);
+    }
+
+    public void removeOnMonthSelectListener(OnMonthSelectListener listener) {
+        mOnMonthSelectListenerList.remove(listener);
+    }
+
+    public void removeAllOnMonthSelectListener() {
+        mOnMonthSelectListenerList.clear();
+    }
+
+    private class MonthSelector {
+        @JavascriptInterface
+        public void select(int month) {
+            for (OnMonthSelectListener listener : mOnMonthSelectListenerList) {
+                listener.onMonthSelect(month);
+            }
+        }
     }
 }
