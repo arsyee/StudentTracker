@@ -15,9 +15,10 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +39,11 @@ public class FallenCalendarView extends ConstraintLayout
     @BindView(R2.id.bt_today) Button btToday;
 
     @BindView(R2.id.yv_year) YearView wvYear;
+    @BindView(R2.id.mv_month) MonthView mvMonth;
+    @BindView(R2.id.wv_week) WeekView wvWeek;
+    @BindView(R2.id.dv_day) DayView dvDay;
+
+    Map<ViewLevel, View> mContentMap;
 
     private Calendar mCalendar;
     private int thisYear;
@@ -70,6 +76,13 @@ public class FallenCalendarView extends ConstraintLayout
         }
 
         ButterKnife.bind(this, this);
+
+        mContentMap = new HashMap<>();
+        mContentMap.put(ViewLevel.year, wvYear);
+        mContentMap.put(ViewLevel.month, mvMonth);
+        mContentMap.put(ViewLevel.week, wvWeek);
+        mContentMap.put(ViewLevel.day, dvDay);
+
         tvDay.setOnClickListener(new DayOnClickListener());
         tvYear.setOnClickListener(new YearOnClickListener());
         btToday.setOnClickListener(new TodayButtonOnClickListener());
@@ -81,16 +94,21 @@ public class FallenCalendarView extends ConstraintLayout
     }
 
     private void onChanged() {
-        switch (viewLevel) {
-            default:
-                tvDebugView.setText(String.format(Locale.getDefault(), "viewLevel: %s, date: %2$tY-%2$tm-%2$td", viewLevel, mCalendar));
-                break;
+        for (ViewLevel level : mContentMap.keySet()) {
+            if (level == viewLevel) {
+                if (mContentMap.get(level) instanceof CalendarContentInterface) {
+                    ((CalendarContentInterface) mContentMap.get(level)).setCalendar(mCalendar);
+                }
+                mContentMap.get(level).setVisibility(VISIBLE);
+            } else {
+                mContentMap.get(level).setVisibility(GONE);
+            }
         }
         tvYear.setText(String.format(Locale.getDefault(), "%tY", mCalendar));
         tvMonth.setText(String.format(Locale.getDefault(), "%tm", mCalendar));
         tvDay.setText(String.format(Locale.getDefault(), "%td", mCalendar));
         tvViewLevel.setText(String.format(Locale.getDefault(), "%s", viewLevel));
-        wvYear.setCalendar(mCalendar);
+        tvDebugView.setText(String.format(Locale.getDefault(), "viewLevel: %s, date: %2$tY-%2$tm-%2$td", viewLevel, mCalendar));
     }
 
     private int getCalendarField(ViewLevel viewLevel) {

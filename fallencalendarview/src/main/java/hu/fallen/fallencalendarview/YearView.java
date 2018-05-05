@@ -1,8 +1,8 @@
 package hu.fallen.fallencalendarview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -14,7 +14,7 @@ import java.util.Calendar;
 
 import timber.log.Timber;
 
-class YearView extends WebView {
+class YearView extends WebView implements CalendarContentInterface {
     private Calendar mCalendar;
     private ArrayList<OnMonthSelectListener> mOnMonthSelectListenerList = new ArrayList<>();
 
@@ -30,6 +30,7 @@ class YearView extends WebView {
         this(context, attrs, defStyleAttr, 0);
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public YearView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr);
         // TODO do something with defStyleRes
@@ -135,8 +136,9 @@ class YearView extends WebView {
         return (MAX + dayOfWeek - dayOfYear) % 7 + 1;
     }
 
+    @Override
     public void setCalendar(Calendar calendar) {
-        this.mCalendar = calendar;
+        mCalendar = calendar;
         int columnNum = 3;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             columnNum = 6;
