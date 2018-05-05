@@ -1,16 +1,15 @@
 package hu.fallen.fallencalendarview;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -20,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
-public class FallenCalendarView extends ConstraintLayout {
+public class FallenCalendarView extends ConstraintLayout implements DatePickerDialog.OnDateSetListener {
 
     private ViewLevel viewLevel = ViewLevel.day;
 
@@ -63,7 +62,8 @@ public class FallenCalendarView extends ConstraintLayout {
         }
 
         ButterKnife.bind(this, this);
-        btToday.setOnClickListener(new TodayButtonOnclickListener());
+        tvDay.setOnClickListener(new DayOnClickListener());
+        btToday.setOnClickListener(new TodayButtonOnClickListener());
 
         mCalendar = Calendar.getInstance();
 
@@ -127,11 +127,31 @@ public class FallenCalendarView extends ConstraintLayout {
         }
     }
 
-    private class TodayButtonOnclickListener implements OnClickListener {
+    private class TodayButtonOnClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
             mCalendar = Calendar.getInstance();
             onChanged();
         }
     }
+
+    private class DayOnClickListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            new DatePickerDialog(
+                    FallenCalendarView.this.getContext(),
+                    FallenCalendarView.this,
+                    mCalendar.get(Calendar.YEAR),
+                    mCalendar.get(Calendar.MONTH),
+                    mCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        mCalendar.set(year, month, dayOfMonth);
+        viewLevel = ViewLevel.day;
+        onChanged();
+    }
+
 }
