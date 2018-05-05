@@ -38,6 +38,9 @@ class YearView extends WebView implements CalendarContentInterface {
         Timber.d("font size changed from %d to %d", getSettings().getDefaultFontSize(), fontSize);
         getSettings().setDefaultFontSize(fontSize);
         getSettings().setStandardFontFamily("sans-serif-condensed");
+        // alternative solution: works best with 10dp fonts, seems a bit off otherwise
+        // getSettings().setLoadWithOverviewMode(true);
+        // getSettings().setUseWideViewPort(true);
         getSettings().setJavaScriptEnabled(true);
         addJavascriptInterface(new MonthSelector(), "monthSelector");
     }
