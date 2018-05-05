@@ -75,7 +75,6 @@ public class FallenCalendarView extends ConstraintLayout
         wvYear.getSettings().setStandardFontFamily("sans-serif-condensed");
 
         mCalendar = Calendar.getInstance();
-        mCalendar.set(2018, 06, 12);
 
         mScaleDetector = new ScaleGestureDetector(context, this);
         mGestureDetector = new GestureDetector(context, this);
@@ -97,7 +96,17 @@ public class FallenCalendarView extends ConstraintLayout
             columnNum = 6;
         }
         Resources res = getContext().getResources();
-        wvYear.loadData(getYearCalendar(mCalendar, columnNum, res.getStringArray(R.array.days), res.getStringArray(R.array.months), res.getString(R.string.year_css)), "text/html", null);
+        wvYear.loadDataWithBaseURL(
+                "about:blank",
+                getYearCalendar(
+                        mCalendar,
+                        columnNum,
+                        res.getStringArray(R.array.days),
+                        res.getStringArray(R.array.months),
+                        res.getString(R.string.year_css)),
+                "text/html",
+                null,
+                null);
     }
 
     private static String getYearCalendar(Calendar calendar, int columnNum, String[] dayNames, String[] monthNames, String css) {
@@ -132,7 +141,7 @@ public class FallenCalendarView extends ConstraintLayout
 
         int currentDayOfWeek = firstDayOfYear;
 
-        StringBuilder sb = new StringBuilder(16000); // less than 2^14 = 16384
+        StringBuilder sb = new StringBuilder(9000); // measurements show we usually end up below this
         sb.append("<html><head><style>\n").append(css).append("\n</style></head><body><table class='year'>");
         for (int month = 0; month < 12; ++month) {
             if (month % columnNum == 0) sb.append("<tr width='").append(100/columnNum).append("%'>");
@@ -152,10 +161,8 @@ public class FallenCalendarView extends ConstraintLayout
                 for (int i = 0; i < 7; ++i) {
                     String cssClass = null;
                     if (selectedYear == thisYear && month == thisMonth && currentDayOfMonth == thisDay) {
-                        Timber.d("Today found: %d-%d", month, currentDayOfMonth);
                         cssClass = "today";
                     } else if (month == selectedMonth && currentDayOfMonth == selectedDay) {
-                        Timber.d("Selected found: %d-%d", month, currentDayOfMonth);
                         cssClass = "current";
                     }
                     if (currentDayOfWeek == Calendar.SUNDAY) {
@@ -168,9 +175,6 @@ public class FallenCalendarView extends ConstraintLayout
                     if (cssClass == null){
                         sb.append("<td>");
                     } else {
-                        if (!cssClass.equals("sunday")) {
-                            Timber.d("Applying class '%s' to %s-%d", cssClass, monthNames[month], currentDayOfMonth);
-                        }
                         sb.append("<td class='").append(cssClass).append("'>");
                     }
                     int day = (firstDayOfWeek - 1 + i) % 7 + 1;
