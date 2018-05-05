@@ -51,6 +51,9 @@ public class FallenCalendarView extends ConstraintLayout
         this(context, attrs, defStyleAttr, 0);
     }
 
+    // TODO Configuration options: colors, grid, fontSize
+    // TODO Generalize to 2D ViewPager: swipe left-right to page, pinch to go in and out
+
     public FallenCalendarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr);
         Timber.d("FallenCalendarView created");
