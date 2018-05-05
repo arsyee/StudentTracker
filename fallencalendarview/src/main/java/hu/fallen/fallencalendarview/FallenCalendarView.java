@@ -20,11 +20,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
-public class FallenCalendarView extends ConstraintLayout
-        implements ScaleGestureDetector.OnScaleGestureListener, GestureDetector.OnGestureListener {
-
-    private final ScaleGestureDetector mScaleDetector;
-    private final GestureDetector mGestureDetector;
+public class FallenCalendarView extends ConstraintLayout {
 
     private ViewLevel viewLevel = ViewLevel.day;
 
@@ -71,8 +67,6 @@ public class FallenCalendarView extends ConstraintLayout
 
         mCalendar = Calendar.getInstance();
 
-        mScaleDetector = new ScaleGestureDetector(context, this);
-        mGestureDetector = new GestureDetector(context, this);
         onChanged();
     }
 
@@ -87,124 +81,6 @@ public class FallenCalendarView extends ConstraintLayout
         tvDay.setText(String.format(Locale.getDefault(), "%td", mCalendar));
         tvViewLevel.setText(String.format(Locale.getDefault(), "%s", viewLevel));
         wvYear.setCalendar(mCalendar);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean result = mScaleDetector.onTouchEvent(event);
-        if (!mScaleDetector.isInProgress()) {
-            result = mGestureDetector.onTouchEvent(event);
-        }
-        return result || super.onTouchEvent(event);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return onTouchEvent(ev) && super.dispatchTouchEvent(ev);
-    }
-
-    // Implementation of ScaleGestureDetector.OnScaleGestureListener
-
-    @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        // Timber.d("onScale: %f", detector.getScaleFactor());
-        return false;
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-        // Timber.d("onScaleBegin: %s", detector);
-        return true;
-    }
-
-    @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-        Timber.d("onScaleEnd: %f", detector.getScaleFactor());
-        if (detector.getScaleFactor() > 1.0) {
-            viewLevel = viewLevel.next();
-        } else {
-            viewLevel = viewLevel.prev();
-        }
-        onChanged();
-    }
-
-    // Implementation of GestureDetector.OnGestureListener
-
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return true;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        Timber.d("onFling: %f, %f, %s, %s", velocityX, velocityY, e1, e2);
-
-        final int SWIPE_THRESHOLD = 100;
-        final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-        try {
-            float diffY = e2.getY() - e1.getY();
-            float diffX = e2.getX() - e1.getX();
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (diffX > 0) {
-                        return onSwipeRight();
-                    } else {
-                        return onSwipeLeft();
-                    }
-                }
-            }
-            else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                if (diffY > 0) {
-                    return onSwipeBottom();
-                } else {
-                    return onSwipeTop();
-                }
-            }
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean onSwipeRight() {
-        mCalendar.add(getCalendarField(viewLevel), 1);
-        onChanged();
-        return true;
-    }
-
-    private boolean onSwipeLeft() {
-        mCalendar.add(getCalendarField(viewLevel), -1);
-        onChanged();
-        return true;
-    }
-
-    private boolean onSwipeBottom() {
-        return false;
-    }
-
-    private boolean onSwipeTop() {
-        return false;
     }
 
     private int getCalendarField(ViewLevel viewLevel) {
