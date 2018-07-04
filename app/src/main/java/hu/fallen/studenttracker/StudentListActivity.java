@@ -1,10 +1,19 @@
 package hu.fallen.studenttracker;
 
+import android.Manifest;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
@@ -26,13 +35,15 @@ import java.util.List;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class StudentListActivity extends BaseActivity {
+public class StudentListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final int PERMISSION_REQUEST_READ_CONTACTS_ID = 723;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
+    private CursorRecyclerViewAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,20 +70,72 @@ public class StudentListActivity extends BaseActivity {
             mTwoPane = true;
         }
 
+        getLoaderManager().initLoader(0, null, this);
+
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        int CONTACT_ID_INDEX = 0;
+        int LOOKUP_KEY_INDEX = 1;
+        mCursorAdapter = new CursorRecyclerViewAdapter(this, null, mTwoPane);
+        recyclerView.setAdapter(mCursorAdapter);
     }
 
-    public static class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_READ_CONTACTS_ID:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onCreateLoader(0, null);
+                }
+                return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST_READ_CONTACTS_ID);
+            return null;
+        } else {
+            String[] PROJECTION = {
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.LOOKUP_KEY,
+                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
+            };
+            String SELECTION = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?";
+            String searchString = "Alice";
+            String[] selectionArgs = {"%" + searchString + "%"};
+            return new CursorLoader(
+                    this,
+                    ContactsContract.Contacts.CONTENT_URI,
+                    PROJECTION,
+                    SELECTION,
+                    selectionArgs,
+                    null
+            );
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mCursorAdapter.swapCursor(null);
+    }
+
+    public static class CursorRecyclerViewAdapter
+            extends RecyclerView.Adapter<CursorRecyclerViewAdapter.ViewHolder> {
 
         private final StudentListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        private Cursor mCursor;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -96,10 +159,10 @@ public class StudentListActivity extends BaseActivity {
             }
         };
 
-        SimpleItemRecyclerViewAdapter(StudentListActivity parent,
-                                      List<DummyContent.DummyItem> items,
-                                      boolean twoPane) {
-            mValues = items;
+        CursorRecyclerViewAdapter(StudentListActivity parent,
+                                  Cursor cursor,
+                                  boolean twoPane) {
+            mCursor = cursor;
             mParentActivity = parent;
             mTwoPane = twoPane;
         }
@@ -113,16 +176,30 @@ public class StudentListActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            if (mCursor == null) {
+                throw new IllegalStateException("Cursor is null.");
+            }
+            if (!mCursor.moveToPosition(position)) {
+                throw new IllegalStateException(String.format("Cannot move cursor to position %d.", position));
+            }
+            int CONTACT_ID_INDEX = 0;
+            int LOOKUP_KEY_INDEX = 1;
+            // deal with Cursor data
+            holder.mIdView.setText(mCursor.getString(CONTACT_ID_INDEX));
+            holder.mContentView.setText(mCursor.getString(2));
 
-            holder.itemView.setTag(mValues.get(position));
+            holder.itemView.setTag("ID");
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 
         @Override
         public int getItemCount() {
-            return mValues.size();
+            return mCursor == null ? 0 : mCursor.getCount();
+        }
+
+        public void swapCursor(Cursor data) {
+            mCursor = data;
+            notifyDataSetChanged();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
