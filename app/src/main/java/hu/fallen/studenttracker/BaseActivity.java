@@ -85,7 +85,10 @@ abstract class BaseActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_calendar) {
+        if (id == R.id.nav_student) {
+            Intent openStudent = new Intent(this, StudentListActivity.class);
+            startActivity(openStudent);
+        } else if (id == R.id.nav_calendar) {
             Intent openCalendar = new Intent(this, CalendarActivity.class);
             startActivity(openCalendar);
         } else if (id == R.id.nav_about) {

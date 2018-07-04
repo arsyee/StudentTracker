@@ -16,14 +16,12 @@ import android.view.MenuItem;
  * item details are presented side-by-side with a list of items
  * in a {@link StudentListActivity}.
  */
-public class StudentDetailActivity extends AppCompatActivity {
+public class StudentDetailActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -33,12 +31,6 @@ public class StudentDetailActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
