@@ -8,4 +8,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_calendar">CalendarActivity</string>
     <string name="about">Created by Tibi</string>
+    <string name="title_student_list">Students</string>
+    <string name="title_student_detail">Student Detail</string>
 </resources>

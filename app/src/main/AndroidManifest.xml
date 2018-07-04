@@ -25,6 +25,19 @@
             android:name=".AboutActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".StudentListActivity"
+            android:label="@string/title_student_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".StudentDetailActivity"
+            android:label="@string/title_student_detail"
+            android:parentActivityName=".StudentListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hu.fallen.studenttracker.StudentListActivity" />
+        </activity>
     </application>
 
 </manifest>
