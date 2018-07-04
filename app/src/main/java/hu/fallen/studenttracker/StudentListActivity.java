@@ -103,16 +103,18 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             return null;
         } else {
             String[] PROJECTION = {
-                    ContactsContract.Contacts._ID,
-                    ContactsContract.Contacts.LOOKUP_KEY,
-                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
+                    ContactsContract.Data._ID,
+                    ContactsContract.Data.LOOKUP_KEY,
+                    ContactsContract.Data.DISPLAY_NAME_PRIMARY,
+                    ContactsContract.Data.CONTACT_ID,
+                    ContactsContract.Data.DATA1
             };
-            String SELECTION = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?";
-            String searchString = "Alice";
-            String[] selectionArgs = {"%" + searchString + "%"};
+            String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
+            String searchString = "6";
+            String[] selectionArgs = { searchString };
             return new CursorLoader(
                     this,
-                    ContactsContract.Contacts.CONTENT_URI,
+                    ContactsContract.Data.CONTENT_URI,
                     PROJECTION,
                     SELECTION,
                     selectionArgs,
@@ -182,11 +184,12 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             if (!mCursor.moveToPosition(position)) {
                 throw new IllegalStateException(String.format("Cannot move cursor to position %d.", position));
             }
-            int CONTACT_ID_INDEX = 0;
+            int CONTACT_ID_INDEX = 3;
             int LOOKUP_KEY_INDEX = 1;
             // deal with Cursor data
             holder.mIdView.setText(mCursor.getString(CONTACT_ID_INDEX));
-            holder.mContentView.setText(mCursor.getString(2));
+            holder.mContentView.setText(mCursor.getString(2) + " " + mCursor.getString(4)
+            + "(" + mCursor.getColumnCount() + ")");
 
             holder.itemView.setTag(mCursor.getString(LOOKUP_KEY_INDEX));
             holder.itemView.setOnClickListener(mOnClickListener);
