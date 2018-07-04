@@ -140,10 +140,10 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                String contactId = (String) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(StudentDetailFragment.ARG_ITEM_ID, item.id);
+                    arguments.putString(StudentDetailFragment.ARG_ITEM_ID, contactId);
                     StudentDetailFragment fragment = new StudentDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -152,7 +152,7 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, StudentDetailActivity.class);
-                    intent.putExtra(StudentDetailFragment.ARG_ITEM_ID, item.id);
+                    intent.putExtra(StudentDetailFragment.ARG_ITEM_ID, contactId);
 
                     context.startActivity(intent);
                 }
@@ -188,7 +188,7 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             holder.mIdView.setText(mCursor.getString(CONTACT_ID_INDEX));
             holder.mContentView.setText(mCursor.getString(2));
 
-            holder.itemView.setTag("ID");
+            holder.itemView.setTag(mCursor.getString(LOOKUP_KEY_INDEX));
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 
