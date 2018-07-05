@@ -85,16 +85,17 @@ abstract class BaseActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        Intent openActivity = null;
+
         if (id == R.id.nav_student) {
-            Intent openStudent = new Intent(this, StudentListActivity.class);
-            startActivity(openStudent);
+            openActivity = new Intent(this, StudentListActivity.class);
         } else if (id == R.id.nav_calendar) {
-            Intent openCalendar = new Intent(this, CalendarActivity.class);
-            startActivity(openCalendar);
+            openActivity = new Intent(this, CalendarActivity.class);
         } else if (id == R.id.nav_about) {
-            Intent openAbout = new Intent(this, AboutActivity.class);
-            startActivity(openAbout);
+            openActivity = new Intent(this, AboutActivity.class);
         }
+
+        if (openActivity != null) startActivity(openActivity);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
