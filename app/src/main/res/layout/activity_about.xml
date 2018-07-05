@@ -15,4 +15,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear preferences"
+        android:onClick="clearPreferences"/>
+
 </android.support.constraint.ConstraintLayout>
