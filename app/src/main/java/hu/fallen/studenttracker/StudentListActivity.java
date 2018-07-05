@@ -9,6 +9,7 @@ import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import timber.log.Timber;
 
 /**
  * An activity representing a list of Students. This activity
@@ -105,7 +108,11 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
                     ContactsContract.Data.DATA1
             };
             String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
-            String searchString = "6";
+            String searchString = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
+            Timber.d("Querying group %s", searchString);
+            if (searchString == null) {
+                return null;
+            }
             String[] selectionArgs = { searchString };
             return new CursorLoader(
                     this,
