@@ -3,6 +3,8 @@ package hu.fallen.studenttracker.utilities;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import hu.fallen.studenttracker.R;
@@ -30,26 +32,29 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
     @Override
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
-        TextView textView = view.findViewById(R.id.group_text);
-        StringBuilder builder = new StringBuilder();
-        if (mGroups == null) {
-            builder.append("Groups were not specified!");
-        } else {
+        RadioGroup studentSelector = view.findViewById(R.id.student_selector);
+        if (mGroups != null) {
             for (Group g : mGroups) {
-                builder.append(g.mID).append(" - ").append(g.mName).append("\n");
+                // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
+                // textView.setText(builder.toString());
+                RadioButton radioButton = new RadioButton(getContext());
+                radioButton.setText(String.format("%s (%d)", g.name, g.count));
+                radioButton.setTag(g.id);
+                studentSelector.addView(radioButton);
             }
         }
-        textView.setText(builder.toString());
         Timber.d("called");
     }
 
     public static class Group {
-        public String mName;
-        public String mID;
+        private String id;
+        private String name;
+        private int count;
 
-        public Group(String name, String id) {
-            mName = name;
-            mID = id;
+        Group(String id, String name, int count) {
+            this.id = id;
+            this.name = name;
+            this.count = count;
         }
     }
 }

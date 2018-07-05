@@ -88,8 +88,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Loader
         Group[] groups = new Group[cursor.getCount()];
         for (int i = 0; i < cursor.getCount(); ++i) {
             cursor.moveToPosition(i);
-            Group group = new Group(String.format("%s (%d)", cursor.getString(1), cursor.getInt(2)),
-                    cursor.getString(0));
+            Group group = new Group(cursor.getString(0),
+                    cursor.getString(1),
+                    cursor.getInt(2));
             groups[i] = group;
         }
         if (mPreference instanceof GroupPreference) {
