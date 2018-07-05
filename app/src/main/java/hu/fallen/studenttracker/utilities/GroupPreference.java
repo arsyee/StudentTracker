@@ -1,6 +1,7 @@
 package hu.fallen.studenttracker.utilities;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
@@ -21,6 +22,24 @@ public class GroupPreference extends DialogPreference {
 
     public GroupPreference(Context context) {
         this(context, null);
+    }
+
+    @Override
+    protected Object onGetDefaultValue(TypedArray a, int index) {
+        return null;
+    }
+
+    String getGroup() {
+        return getPersistedString(null);
+    }
+
+    void setGroup(String group) {
+        persistString(group);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        persistString(restorePersistedValue ? getPersistedString(null) : null);
     }
 
     @Override
