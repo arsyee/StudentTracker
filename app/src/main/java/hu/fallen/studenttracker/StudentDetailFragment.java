@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import hu.fallen.studenttracker.dummy.DummyContent;
-
 /**
  * A fragment representing a single Student detail screen.
  * This fragment is either contained in a {@link StudentListActivity}
