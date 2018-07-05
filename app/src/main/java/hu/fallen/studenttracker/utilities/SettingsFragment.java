@@ -8,6 +8,8 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import hu.fallen.studenttracker.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
+    private GroupPreferenceDialogFragmentCompat.Group[] mGroups = null;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pref_settings);
@@ -20,7 +22,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (preference instanceof GroupPreference) {
             // Create a new instance of TimePreferenceDialogFragment with the key of the related
             // Preference
-            dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+            mGroups = new GroupPreferenceDialogFragmentCompat.Group[]{new GroupPreferenceDialogFragmentCompat.Group("Group 1", "ID1")};
+            dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(preference.getKey(), mGroups);
         }
 
         // If it was one of our cutom Preferences, show its dialog
