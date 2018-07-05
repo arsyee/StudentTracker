@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
     <RadioGroup
         android:id="@+id/student_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
     </RadioGroup>
+    <Button
+        android:id="@+id/create_new_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_new_group"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+    <LinearLayout
+        android:id="@+id/new_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <EditText
+            android:id="@+id/new_group_name"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/new_group_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+    </LinearLayout>
 </LinearLayout>
