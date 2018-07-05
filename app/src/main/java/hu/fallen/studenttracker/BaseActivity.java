@@ -91,6 +91,8 @@ abstract class BaseActivity extends AppCompatActivity
             openActivity = new Intent(this, StudentListActivity.class);
         } else if (id == R.id.nav_calendar) {
             openActivity = new Intent(this, CalendarActivity.class);
+        } else if (id == R.id.nav_settings) {
+            openActivity = new Intent(this, SettingsActivity.class);
         } else if (id == R.id.nav_about) {
             openActivity = new Intent(this, AboutActivity.class);
         }
