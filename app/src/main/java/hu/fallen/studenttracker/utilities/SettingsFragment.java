@@ -19,6 +19,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 
+import hu.fallen.studenttracker.misc.IDs;
 import hu.fallen.studenttracker.utilities.GroupPreferenceDialogFragmentCompat.Group;
 
 import hu.fallen.studenttracker.R;
@@ -27,8 +28,6 @@ import timber.log.Timber;
 public class SettingsFragment extends PreferenceFragmentCompat implements
         LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final int PERMISSION_REQUEST_READ_CONTACTS_ID = 724;
-
     private Preference mPreference = null;
 
     @Override
@@ -73,8 +72,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             Bundle args = new Bundle();
             args.putString("key", p.getKey());
             args.putString("value", value);
-            getActivity().getLoaderManager().destroyLoader(2);
-            getActivity().getLoaderManager().initLoader(2, args, this);
+            getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_GROUPS_FOR_SUMMARY);
+            getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_GROUPS_FOR_SUMMARY, args, this);
         } else {
             // String summary = *func(p, value); // calculate the summary
             // p.setSummary(); // and set it
@@ -83,10 +82,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
-        getActivity().getLoaderManager().destroyLoader(0);
+        getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_GROUPS_FOR_DIALOG);
         mPreference = preference;
         if (preference instanceof GroupPreference) {
-            getActivity().getLoaderManager().initLoader(0, null, this);
+            getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_GROUPS_FOR_DIALOG, null, this);
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
@@ -95,9 +94,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_REQUEST_READ_CONTACTS_ID:
+            case IDs.PERMISSION_REQUEST_READ_CONTACTS_ID:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onCreateLoader(0, null);
+
                 }
                 return;
         }
@@ -108,7 +107,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Timber.d("onCreateLoader");
         if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST_READ_CONTACTS_ID);
+            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, IDs.PERMISSION_REQUEST_READ_CONTACTS_ID);
             return null;
         } else {
             String[] PROJECTION = {
@@ -145,7 +144,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                     cursor.getInt(2));
             groups[i] = group;
         }
-        if (loader.getId() == 0) {
+        if (loader.getId() == IDs.LOADER_ID_GROUPS_FOR_DIALOG) {
             if (mPreference instanceof GroupPreference) {
                 GroupPreferenceDialogFragmentCompat dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(mPreference.getKey(), groups);
                 dialogFragment.setTargetFragment(this, 0);
@@ -153,7 +152,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                         "android.support.v7.preference" +
                                 ".PreferenceFragment.DIALOG");
             }
-        } else if (loader.getId() == 2 && loader instanceof CursorLoaderWrapper) {
+        } else if (loader.getId() == IDs.LOADER_ID_GROUPS_FOR_SUMMARY && loader instanceof CursorLoaderWrapper) {
             Bundle args = ((CursorLoaderWrapper) loader).payload;
             String key = args.getString("key");
             String value = args.getString("value");

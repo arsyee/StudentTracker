@@ -22,11 +22,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import hu.fallen.studenttracker.R;
+import hu.fallen.studenttracker.misc.IDs;
 import timber.log.Timber;
 
 public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat
                                                 implements LoaderManager.LoaderCallbacks<String> {
-    private static final int PERMISSION_REQUEST_WRITE_CONTACTS_ID = 273;
     private static Group[] mGroups;
     private View mView = null;
 
@@ -111,11 +111,11 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
                     Timber.d("So we create a Loader...");
                     Bundle args = new Bundle();
                     args.putString("newGroup", newGroupName.getText().toString());
-                    if (getActivity().getLoaderManager().getLoader(1) != null && getActivity().getLoaderManager().getLoader(1).isStarted()) {
+                    if (getActivity().getLoaderManager().getLoader(IDs.LOADER_ID_CREATE_GROUP) != null && getActivity().getLoaderManager().getLoader(IDs.LOADER_ID_CREATE_GROUP).isStarted()) {
                         Timber.d("Loader is already running...");
-                        getActivity().getLoaderManager().destroyLoader(1);
+                        getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_CREATE_GROUP);
                     }
-                    getActivity().getLoaderManager().initLoader(1, args, GroupPreferenceDialogFragmentCompat.this).forceLoad();
+                    getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_CREATE_GROUP, args, GroupPreferenceDialogFragmentCompat.this).forceLoad();
                 }
             }
         });
@@ -126,7 +126,7 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
         Timber.d("This is where the Loader is created...");
         if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             Timber.d("Permission denied...");
-            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.WRITE_CONTACTS}, PERMISSION_REQUEST_WRITE_CONTACTS_ID);
+            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.WRITE_CONTACTS}, IDs.PERMISSION_REQUEST_WRITE_CONTACTS_ID);
             return null;
         } else {
             return new AsyncTaskLoader<String>(this.getContext()) {

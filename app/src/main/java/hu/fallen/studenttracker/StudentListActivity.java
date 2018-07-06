@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import hu.fallen.studenttracker.misc.IDs;
 import timber.log.Timber;
 
 /**
@@ -35,7 +36,6 @@ import timber.log.Timber;
  */
 public class StudentListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final int PERMISSION_REQUEST_READ_CONTACTS_ID = 723;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -68,7 +68,7 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             mTwoPane = true;
         }
 
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
 
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
@@ -85,9 +85,9 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_REQUEST_READ_CONTACTS_ID:
+            case IDs.PERMISSION_REQUEST_READ_CONTACTS_ID:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onCreateLoader(0, null);
+                    getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
                 }
                 return;
         }
@@ -97,7 +97,7 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST_READ_CONTACTS_ID);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, IDs.PERMISSION_REQUEST_READ_CONTACTS_ID);
             return null;
         } else {
             String[] PROJECTION = {
