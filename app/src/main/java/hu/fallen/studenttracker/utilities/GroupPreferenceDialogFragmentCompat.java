@@ -157,9 +157,9 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
     }
 
     public static class Group {
-        private String id;
-        private String name;
-        private int count;
+        String id;
+        String name;
+        int count;
 
         Group(String id, String name, int count) {
             this.id = id;

@@ -2,33 +2,83 @@ package hu.fallen.studenttracker.utilities;
 
 import android.Manifest;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 
 import hu.fallen.studenttracker.utilities.GroupPreferenceDialogFragmentCompat.Group;
 
 import hu.fallen.studenttracker.R;
 import timber.log.Timber;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SettingsFragment extends PreferenceFragmentCompat implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     private static final int PERMISSION_REQUEST_READ_CONTACTS_ID = 724;
 
     private Preference mPreference = null;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
+    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         Timber.d("onCreatePreferences");
         addPreferencesFromResource(R.xml.pref_settings);
+
+        PreferenceScreen screen = getPreferenceScreen();
+        for (int i = 0; i < screen.getPreferenceCount(); ++i) {
+            Preference p = screen.getPreference(i);
+            if (!(p instanceof CheckBoxPreference)) {
+                setPreferenceSummary(p, screen.getSharedPreferences().getString(p.getKey(), null));
+            }
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Preference p = findPreference(key);
+        Timber.d("onSharedPreferenceChanged called: %s -> %s", key, p);
+        if (null != p) {
+            if (!(p instanceof CheckBoxPreference)) {
+                setPreferenceSummary(p, sharedPreferences.getString(p.getKey(), null));
+            }
+        }
+    }
+
+    private void setPreferenceSummary(Preference p, String value) {
+        if (p instanceof GroupPreference) {
+            Bundle args = new Bundle();
+            args.putString("key", p.getKey());
+            args.putString("value", value);
+            getActivity().getLoaderManager().destroyLoader(2);
+            getActivity().getLoaderManager().initLoader(2, args, this);
+        } else {
+            // String summary = *func(p, value); // calculate the summary
+            // p.setSummary(); // and set it
+        }
     }
 
     @Override
@@ -66,7 +116,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Loader
                     ContactsContract.Groups.TITLE,
                     ContactsContract.Groups.SUMMARY_COUNT
             };
-            return new CursorLoader(
+            CursorLoaderWrapper cursorLoader = new CursorLoaderWrapper(
                     this.getContext(),
                     ContactsContract.Groups.CONTENT_SUMMARY_URI,
                     PROJECTION,
@@ -74,6 +124,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Loader
                     null,
                     null
             );
+            cursorLoader.payload = args;
+            return cursorLoader;
         }
     }
 
@@ -84,7 +136,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Loader
             onLoaderReset(loader);
             return;
         }
-        Timber.d("onLoadFinished");
+        Timber.d("onLoadFinished: %d", loader.getId());
         Group[] groups = new Group[cursor.getCount()];
         for (int i = 0; i < cursor.getCount(); ++i) {
             cursor.moveToPosition(i);
@@ -93,17 +145,43 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Loader
                     cursor.getInt(2));
             groups[i] = group;
         }
-        if (mPreference instanceof GroupPreference) {
-            GroupPreferenceDialogFragmentCompat dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(mPreference.getKey(), groups);
-            dialogFragment.setTargetFragment(this, 0);
-            dialogFragment.show(this.getFragmentManager(),
-                    "android.support.v7.preference" +
-                            ".PreferenceFragment.DIALOG");
+        if (loader.getId() == 0) {
+            if (mPreference instanceof GroupPreference) {
+                GroupPreferenceDialogFragmentCompat dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(mPreference.getKey(), groups);
+                dialogFragment.setTargetFragment(this, 0);
+                dialogFragment.show(this.getFragmentManager(),
+                        "android.support.v7.preference" +
+                                ".PreferenceFragment.DIALOG");
+            }
+        } else if (loader.getId() == 2 && loader instanceof CursorLoaderWrapper) {
+            Bundle args = ((CursorLoaderWrapper) loader).payload;
+            String key = args.getString("key");
+            String value = args.getString("value");
+            String groupName = "";
+            for (Group g : groups) {
+                if (g.id.equals(value)) groupName = g.name;
+            }
+
+            Timber.d("We should have everything to update: %s, %s, %s", key, value, groupName);
+            PreferenceScreen screen = getPreferenceScreen();
+            for (int i = 0; i < screen.getPreferenceCount(); ++i) {
+                Preference p = screen.getPreference(i);
+                if (p.getKey().equals(key)) {
+                    p.setSummary(groupName);
+                }
+            }
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // there is nothing to do here
+    }
+
+    static class CursorLoaderWrapper extends CursorLoader {
+        private Bundle payload;
+        CursorLoaderWrapper(Context context, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+            super(context, uri, projection, selection, selectionArgs, sortOrder);
+        }
     }
 }
