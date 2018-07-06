@@ -2,12 +2,14 @@ package hu.fallen.studenttracker;
 
 import android.Manifest;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -55,16 +57,17 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (ContextCompat.checkSelfPermission(StudentListActivity.this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                    Timber.d("Permission denied...");
+                    ActivityCompat.requestPermissions(StudentListActivity.this, new String[]{Manifest.permission.WRITE_CONTACTS}, IDs.PERMISSION_REQUEST_WRITE_CONTACTS_ID);
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                    startActivityForResult(intent, IDs.REQUEST_CODE_ADD_STUDENT);
+                }
             }
         });
 
         if (findViewById(R.id.student_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
             mTwoPane = true;
         }
 
@@ -92,6 +95,36 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
                 return;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == IDs.REQUEST_CODE_ADD_STUDENT) {
+            if (resultCode == RESULT_OK) {
+                Uri contactData = data.getData();
+                Timber.d("Querying...");
+                Cursor cursor =  getContentResolver().query(contactData, null, null, null, null);
+                Timber.d("Cursor length: %d (%d columns)", cursor.getCount(), cursor.getColumnCount());
+                cursor.moveToFirst();
+                String message = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+                String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
+                Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                cursor.close();
+
+                String groupId = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
+                if (groupId == null) return;
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.RAW_CONTACT_ID, lookupKey);
+                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID, groupId);
+                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE, ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE);
+                Uri result = getContentResolver().insert(ContactsContract.Data.CONTENT_URI, contentValues);
+                Timber.d("Insert result is: %s", result);
+            } else {
+                Timber.d("onActivityResult reports failure: %d", resultCode);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
