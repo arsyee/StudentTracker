@@ -1,21 +1,17 @@
 package hu.fallen.studenttracker;
 
-import android.Manifest;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
@@ -25,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
 import timber.log.Timber;
 
@@ -57,10 +54,7 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(StudentListActivity.this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                    Timber.d("Permission denied...");
-                    ActivityCompat.requestPermissions(StudentListActivity.this, new String[]{Manifest.permission.WRITE_CONTACTS}, IDs.PERMISSION_REQUEST_WRITE_CONTACTS_ID);
-                } else {
+                if (Config.check(view)) {
                     Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                     startActivityForResult(intent, IDs.REQUEST_CODE_ADD_STUDENT);
                 }
@@ -71,11 +65,12 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             mTwoPane = true;
         }
 
-        getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
-
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        if (Config.check(recyclerView)) {
+            setupRecyclerView((RecyclerView) recyclerView);
+            getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
+        }
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -83,18 +78,6 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
         int LOOKUP_KEY_INDEX = 1;
         mCursorAdapter = new CursorRecyclerViewAdapter(this, null, mTwoPane);
         recyclerView.setAdapter(mCursorAdapter);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case IDs.PERMISSION_REQUEST_READ_CONTACTS_ID:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
-                }
-                return;
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -129,33 +112,28 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, IDs.PERMISSION_REQUEST_READ_CONTACTS_ID);
+        String[] PROJECTION = {
+                ContactsContract.Data._ID,
+                ContactsContract.Data.LOOKUP_KEY,
+                ContactsContract.Data.DISPLAY_NAME_PRIMARY,
+                ContactsContract.Data.CONTACT_ID,
+                ContactsContract.Data.DATA1
+        };
+        String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
+        String searchString = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
+        Timber.d("Querying group %s", searchString);
+        if (searchString == null) {
             return null;
-        } else {
-            String[] PROJECTION = {
-                    ContactsContract.Data._ID,
-                    ContactsContract.Data.LOOKUP_KEY,
-                    ContactsContract.Data.DISPLAY_NAME_PRIMARY,
-                    ContactsContract.Data.CONTACT_ID,
-                    ContactsContract.Data.DATA1
-            };
-            String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
-            String searchString = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
-            Timber.d("Querying group %s", searchString);
-            if (searchString == null) {
-                return null;
-            }
-            String[] selectionArgs = { searchString };
-            return new CursorLoader(
-                    this,
-                    ContactsContract.Data.CONTENT_URI,
-                    PROJECTION,
-                    SELECTION,
-                    selectionArgs,
-                    null
-            );
         }
+        String[] selectionArgs = { searchString };
+        return new CursorLoader(
+                this,
+                ContactsContract.Data.CONTENT_URI,
+                PROJECTION,
+                SELECTION,
+                selectionArgs,
+                null
+        );
     }
 
     @Override

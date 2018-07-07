@@ -6,19 +6,20 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+import android.view.View;
 
+import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
 import hu.fallen.studenttracker.utilities.GroupPreferenceDialogFragmentCompat.Group;
 
@@ -29,6 +30,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private Preference mPreference = null;
+    private boolean mPermissionsGranted = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,15 +45,50 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        boolean permissionsGranted = Config.checkPermissions(this.getActivity());
+        if (mPermissionsGranted != permissionsGranted) {
+            mPermissionsGranted = permissionsGranted;
+            refreshPreferences();
+        }
+        if (!mPermissionsGranted) {
+            String message = "App needs permissions!";
+            Snackbar snackbar = Snackbar.make(getView(), message, Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction("Grant!", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{
+                            Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.WRITE_CONTACTS,
+                    }, IDs.PERMISSION_REQUEST_CONTACTS_ID);
+                }
+            });
+            snackbar.show();
+        }
+    }
+
+    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         Timber.d("onCreatePreferences");
         addPreferencesFromResource(R.xml.pref_settings);
 
+        mPermissionsGranted = Config.checkPermissions(this.getActivity());
+        refreshPreferences();
+    }
+
+    private void refreshPreferences() {
         PreferenceScreen screen = getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); ++i) {
             Preference p = screen.getPreference(i);
-            if (!(p instanceof CheckBoxPreference)) {
-                setPreferenceSummary(p, screen.getSharedPreferences().getString(p.getKey(), null));
+            if (!mPermissionsGranted) {
+                p.setEnabled(false);
+            } else { // don't try to set summary without permissions
+                p.setEnabled(true);
+                if (!(p instanceof CheckBoxPreference)) {
+                    setPreferenceSummary(p, screen.getSharedPreferences().getString(p.getKey(), null));
+                }
             }
         }
     }
@@ -94,9 +131,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case IDs.PERMISSION_REQUEST_READ_CONTACTS_ID:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            case IDs.PERMISSION_REQUEST_CONTACTS_ID:
+                if (Config.checkPermissions(getContext())) {
+                    mPermissionsGranted = true;
+                    refreshPreferences();
                 }
                 return;
         }
@@ -106,26 +144,21 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Timber.d("onCreateLoader");
-        if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.READ_CONTACTS}, IDs.PERMISSION_REQUEST_READ_CONTACTS_ID);
-            return null;
-        } else {
-            String[] PROJECTION = {
-                    ContactsContract.Groups._ID,
-                    ContactsContract.Groups.TITLE,
-                    ContactsContract.Groups.SUMMARY_COUNT
-            };
-            CursorLoaderWrapper cursorLoader = new CursorLoaderWrapper(
-                    this.getContext(),
-                    ContactsContract.Groups.CONTENT_SUMMARY_URI,
-                    PROJECTION,
-                    null,
-                    null,
-                    null
-            );
-            cursorLoader.payload = args;
-            return cursorLoader;
-        }
+        String[] PROJECTION = {
+                ContactsContract.Groups._ID,
+                ContactsContract.Groups.TITLE,
+                ContactsContract.Groups.SUMMARY_COUNT
+        };
+        CursorLoaderWrapper cursorLoader = new CursorLoaderWrapper(
+                this.getContext(),
+                ContactsContract.Groups.CONTENT_SUMMARY_URI,
+                PROJECTION,
+                null,
+                null,
+                null
+        );
+        cursorLoader.payload = args;
+        return cursorLoader;
     }
 
     @Override

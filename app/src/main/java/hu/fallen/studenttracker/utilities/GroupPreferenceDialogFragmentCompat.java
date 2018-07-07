@@ -1,17 +1,13 @@
 package hu.fallen.studenttracker.utilities;
 
-import android.Manifest;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.view.View;
@@ -124,26 +120,20 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
     @Override
     public Loader<String> onCreateLoader(int id, final Bundle args) {
         Timber.d("This is where the Loader is created...");
-        if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            Timber.d("Permission denied...");
-            ActivityCompat.requestPermissions(this.getActivity(), new String[]{Manifest.permission.WRITE_CONTACTS}, IDs.PERMISSION_REQUEST_WRITE_CONTACTS_ID);
-            return null;
-        } else {
-            return new AsyncTaskLoader<String>(this.getContext()) {
-                @Override
-                public String loadInBackground() {
-                    Timber.d("loadInBackground called with %s", args.getString("newGroup"));
-                    ContentValues values = new ContentValues();
-                    values.put(ContactsContract.Groups.TITLE, args.getString("newGroup"));
-                    Uri uri = GroupPreferenceDialogFragmentCompat.this.getActivity().getContentResolver().insert(
-                            ContactsContract.Groups.CONTENT_URI,
-                            values
-                    );
-                    Timber.d("Insert returned with %s", uri.toString());
-                    return Long.toString(ContentUris.parseId(uri));
-                }
-            };
-        }
+        return new AsyncTaskLoader<String>(this.getContext()) {
+            @Override
+            public String loadInBackground() {
+                Timber.d("loadInBackground called with %s", args.getString("newGroup"));
+                ContentValues values = new ContentValues();
+                values.put(ContactsContract.Groups.TITLE, args.getString("newGroup"));
+                Uri uri = GroupPreferenceDialogFragmentCompat.this.getActivity().getContentResolver().insert(
+                        ContactsContract.Groups.CONTENT_URI,
+                        values
+                );
+                Timber.d("Insert returned with %s", uri.toString());
+                return Long.toString(ContentUris.parseId(uri));
+            }
+        };
     }
 
     @Override

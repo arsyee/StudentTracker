@@ -12,6 +12,5 @@ public class IDs {
     public static final int LOADER_ID_CREATE_GROUP = 1004;
 
     // permission request IDs
-    public static final int PERMISSION_REQUEST_READ_CONTACTS_ID = 701;
-    public static final int PERMISSION_REQUEST_WRITE_CONTACTS_ID = 702;
+    public static final int PERMISSION_REQUEST_CONTACTS_ID = 701;
 }
