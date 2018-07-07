@@ -18,6 +18,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.View;
+import android.widget.TextView;
 
 import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
@@ -54,9 +55,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             refreshPreferences();
         }
         if (!mPermissionsGranted) {
-            String message = "App needs permissions!";
-            Snackbar snackbar = Snackbar.make(getView(), message, Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction("Grant!", new View.OnClickListener() {
+            Snackbar snackbar = Snackbar.make(getView(), R.string.permission_explanation, Snackbar.LENGTH_INDEFINITE);
+            ((TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text)).setMaxLines(10);
+            snackbar.setAction(R.string.grant, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ActivityCompat.requestPermissions(getActivity(), new String[]{
