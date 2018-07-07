@@ -1,17 +1,17 @@
 package hu.fallen.studenttracker;
 
-import android.app.LoaderManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
+import hu.fallen.studenttracker.model.StudentModel;
 import timber.log.Timber;
 
 /**
@@ -33,7 +34,7 @@ import timber.log.Timber;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class StudentListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class StudentListActivity extends BaseActivity {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -69,7 +70,13 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
         assert recyclerView != null;
         if (Config.check(recyclerView)) {
             setupRecyclerView((RecyclerView) recyclerView);
-            getLoaderManager().initLoader(IDs.LOADER_ID_STUDENT_LIST, null, this);
+            StudentModel model = ViewModelProviders.of(this).get(StudentModel.class);
+            model.getStudents().observe(this, new Observer<Cursor>() {
+                @Override
+                public void onChanged(@Nullable Cursor cursor) {
+                    mCursorAdapter.swapCursor(cursor);
+                }
+            });
         }
     }
 
@@ -108,42 +115,6 @@ public class StudentListActivity extends BaseActivity implements LoaderManager.L
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] PROJECTION = {
-                ContactsContract.Data._ID,
-                ContactsContract.Data.LOOKUP_KEY,
-                ContactsContract.Data.DISPLAY_NAME_PRIMARY,
-                ContactsContract.Data.CONTACT_ID,
-                ContactsContract.Data.DATA1
-        };
-        String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
-        String searchString = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
-        Timber.d("Querying group %s", searchString);
-        if (searchString == null) {
-            return null;
-        }
-        String[] selectionArgs = { searchString };
-        return new CursorLoader(
-                this,
-                ContactsContract.Data.CONTENT_URI,
-                PROJECTION,
-                SELECTION,
-                selectionArgs,
-                null
-        );
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mCursorAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mCursorAdapter.swapCursor(null);
     }
 
     public static class CursorRecyclerViewAdapter
