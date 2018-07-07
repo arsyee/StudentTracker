@@ -22,7 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_baseline_add_white_24px" />
+        app:srcCompat="@drawable/ic_baseline_add_white_24px"
+        android:visibility="gone"/>
 
 
 </android.support.design.widget.CoordinatorLayout>
