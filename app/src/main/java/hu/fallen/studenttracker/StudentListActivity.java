@@ -2,13 +2,10 @@ package hu.fallen.studenttracker;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,8 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
+import hu.fallen.studenttracker.model.Student;
 import hu.fallen.studenttracker.model.StudentModel;
 import timber.log.Timber;
 
@@ -37,7 +37,7 @@ public class StudentListActivity extends BaseActivity {
 
     private boolean mTwoPane;
     private StudentModel mModel;
-    private CursorRecyclerViewAdapter mCursorAdapter;
+    private StudentListRecyclerViewAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,17 +69,17 @@ public class StudentListActivity extends BaseActivity {
         assert recyclerView != null;
         if (Config.check(recyclerView)) {
             setupRecyclerView((RecyclerView) recyclerView);
-            mModel.getStudents().observe(this, new Observer<Cursor>() {
+            mModel.getStudents().observe(this, new Observer<List<Student>>() {
                 @Override
-                public void onChanged(@Nullable Cursor cursor) {
-                    mCursorAdapter.swapCursor(cursor);
+                public void onChanged(@Nullable List<Student> students) {
+                    mCursorAdapter.swapList(students);
                 }
             });
         }
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        mCursorAdapter = new CursorRecyclerViewAdapter(this, null, mTwoPane);
+        mCursorAdapter = new StudentListRecyclerViewAdapter(this, null, mTwoPane);
         recyclerView.setAdapter(mCursorAdapter);
     }
 
@@ -96,11 +96,11 @@ public class StudentListActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public static class CursorRecyclerViewAdapter
-            extends RecyclerView.Adapter<CursorRecyclerViewAdapter.ViewHolder> {
+    public static class StudentListRecyclerViewAdapter
+            extends RecyclerView.Adapter<StudentListRecyclerViewAdapter.ViewHolder> {
 
         private final StudentListActivity mParentActivity;
-        private Cursor mCursor;
+        private List<Student> mStudentList;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -124,10 +124,10 @@ public class StudentListActivity extends BaseActivity {
             }
         };
 
-        CursorRecyclerViewAdapter(StudentListActivity parent,
-                                  Cursor cursor,
-                                  boolean twoPane) {
-            mCursor = cursor;
+        StudentListRecyclerViewAdapter(StudentListActivity parent,
+                                       List<Student> studentList,
+                                       boolean twoPane) {
+            mStudentList = studentList;
             mParentActivity = parent;
             mTwoPane = twoPane;
         }
@@ -141,30 +141,28 @@ public class StudentListActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            if (mCursor == null) {
+            if (mStudentList == null) {
                 throw new IllegalStateException("Cursor is null.");
             }
-            if (!mCursor.moveToPosition(position)) {
+            if (mStudentList.size() <= position) {
                 throw new IllegalStateException(String.format("Cannot move cursor to position %d.", position));
             }
-            int CONTACT_ID_INDEX = 3;
-            int LOOKUP_KEY_INDEX = 1;
+            Student student = mStudentList.get(position);
             // deal with Cursor data
-            holder.mIdView.setText(mCursor.getString(CONTACT_ID_INDEX));
-            holder.mContentView.setText(mCursor.getString(2) + " " + mCursor.getString(4)
-            + "(" + mCursor.getColumnCount() + ")");
+            holder.mIdView.setText(student.get(ContactsContract.Data._ID));
+            holder.mContentView.setText(student.get(ContactsContract.Data.DISPLAY_NAME_PRIMARY));
 
-            holder.itemView.setTag(mCursor.getString(LOOKUP_KEY_INDEX));
+            holder.itemView.setTag(student.get(Student.Data.RAW_CONTACT_ID));
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 
         @Override
         public int getItemCount() {
-            return mCursor == null ? 0 : mCursor.getCount();
+            return mStudentList == null ? 0 : mStudentList.size();
         }
 
-        public void swapCursor(Cursor data) {
-            mCursor = data;
+        public void swapList(List<Student> data) {
+            mStudentList = data;
             notifyDataSetChanged();
         }
 

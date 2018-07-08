@@ -4,14 +4,12 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
-import timber.log.Timber;
-
 public class StudentModel extends AndroidViewModel {
-    private StudentsLiveCursor students;
+    private StudentsLiveList students;
 
     public StudentModel(@NonNull Application application) {
         super(application);
-        students = new StudentsLiveCursor(application);
+        students = new StudentsLiveList(application);
     }
 
     @Override
@@ -20,7 +18,7 @@ public class StudentModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    public StudentsLiveCursor getStudents() {
+    public StudentsLiveList getStudents() {
         return students;
     }
 

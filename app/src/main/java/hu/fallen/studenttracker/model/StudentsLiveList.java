@@ -12,13 +12,16 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import timber.log.Timber;
 
-public class StudentsLiveCursor extends MutableLiveData<Cursor> {
+public class StudentsLiveList extends MutableLiveData<List<Student>> {
     private final Context context;
     private final ContentObserver contactObserver;
 
-    StudentsLiveCursor(Context context) {
+    StudentsLiveList(Context context) {
         this.context = context;
         loadStudents();
 
@@ -48,9 +51,9 @@ public class StudentsLiveCursor extends MutableLiveData<Cursor> {
 
     @SuppressLint("StaticFieldLeak")
     private void loadStudents() {
-        new AsyncTask<Void, Void, Cursor>() {
+        new AsyncTask<Void, Void, List<Student>>() {
             @Override
-            protected Cursor doInBackground(Void... voids) {
+            protected List<Student> doInBackground(Void... voids) {
                 String[] PROJECTION = {
                         ContactsContract.Data._ID,
                         ContactsContract.Data.LOOKUP_KEY,
@@ -66,17 +69,31 @@ public class StudentsLiveCursor extends MutableLiveData<Cursor> {
                     return null;
                 }
                 String[] selectionArgs = { Student.MIMETYPE };
-                return context.getContentResolver().query(
+                Cursor cursor = context.getContentResolver().query(
                         ContactsContract.Data.CONTENT_URI,
                         PROJECTION,
                         SELECTION,
                         selectionArgs,
                         null);
+
+                List<Student> students = new ArrayList<>();
+                for (int i = 0; i < cursor.getCount(); ++i) {
+                    cursor.moveToPosition(i);
+                    Student student = new Student();
+                    for (int col = 0; col < cursor.getColumnCount(); ++col) {
+                        student.put(cursor.getColumnName(col), cursor.getString(col));
+                    }
+                    students.add(student);
+                    Timber.d("Student created: %s (%s)", student, student.get("asd"));
+                }
+                cursor.close();
+                return students;
             }
 
             @Override
-            protected void onPostExecute(Cursor cursor) {
-                setValue(cursor);
+            protected void onPostExecute(List<Student> students) {
+                // why am I doing this on the UI thread again? :-P
+                setValue(students);
             }
         }.execute();
     }
