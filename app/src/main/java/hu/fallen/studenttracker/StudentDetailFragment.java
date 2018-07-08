@@ -64,7 +64,12 @@ public class StudentDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            StudentModel model = ViewModelProviders.of(this).get(StudentModel.class);
+            StudentModel model;
+            if (getActivity() == null) {
+                model = ViewModelProviders.of(this).get(StudentModel.class);
+            } else {
+                model = ViewModelProviders.of(getActivity()).get(StudentModel.class);
+            }
             model.getStudents().observe(this, new Observer<List<Student>>() {
                 @Override
                 public void onChanged(@Nullable List<Student> students) {
