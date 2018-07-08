@@ -40,6 +40,8 @@ public class StudentModel extends AndroidViewModel {
         private final Context context;
         private final ContentObserver contactObserver;
 
+        public static final String MIMETYPE = "vnd.android.cursor.item/vnd.hu.fallen.studenttracker.student";
+
         StudentsLiveCursor(Context context) {
             this.context = context;
             loadStudents();
@@ -79,15 +81,16 @@ public class StudentModel extends AndroidViewModel {
                             ContactsContract.Data.LOOKUP_KEY,
                             ContactsContract.Data.DISPLAY_NAME_PRIMARY,
                             ContactsContract.Data.CONTACT_ID,
-                            ContactsContract.Data.DATA1
+                            ContactsContract.Data.DATA1,
+                            ContactsContract.Data.MIMETYPE
                     };
-                    String SELECTION = ContactsContract.Data.DATA1 + " LIKE ?";
+                    String SELECTION = ContactsContract.Data.MIMETYPE + " LIKE ?";
                     String group = PreferenceManager.getDefaultSharedPreferences(context).getString("group", null);
                     Timber.d("Querying group %s", group);
                     if (group == null) {
                         return null;
                     }
-                    String[] selectionArgs = { group };
+                    String[] selectionArgs = { MIMETYPE };
                     return context.getContentResolver().query(
                             ContactsContract.Data.CONTENT_URI,
                             PROJECTION,
@@ -111,16 +114,15 @@ public class StudentModel extends AndroidViewModel {
                     Cursor cursor =  context.getContentResolver().query(contactData, null, null, null, null);
                     if (cursor == null) return null;
                     cursor.moveToFirst();
-                    String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
+                    String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                     cursor.close();
 
                     String groupId = PreferenceManager.getDefaultSharedPreferences(context).getString("group", null);
                     if (groupId == null) return null;
 
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.RAW_CONTACT_ID, lookupKey);
-                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID, groupId);
-                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE, ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE);
+                    contentValues.put(ContactsContract.Data.RAW_CONTACT_ID, contactId);
+                    contentValues.put(ContactsContract.Data.MIMETYPE, MIMETYPE);
                     Uri result = context.getContentResolver().insert(ContactsContract.Data.CONTENT_URI, contentValues);
                     Timber.d("Insert result is: %s", result);
                     return null;
