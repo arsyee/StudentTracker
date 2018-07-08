@@ -4,7 +4,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -149,8 +148,8 @@ public class StudentListActivity extends BaseActivity {
             }
             Student student = mStudentList.get(position);
             // deal with Cursor data
-            holder.mIdView.setText(student.get(ContactsContract.Data._ID));
-            holder.mContentView.setText(student.get(ContactsContract.Data.DISPLAY_NAME_PRIMARY));
+            holder.mIdView.setText(student.get(Student.Data._ID));
+            holder.mContentView.setText(student.get(Student.Data.DISPLAY_NAME_PRIMARY));
 
             holder.itemView.setTag(student.get(Student.Data.RAW_CONTACT_ID));
             holder.itemView.setOnClickListener(mOnClickListener);

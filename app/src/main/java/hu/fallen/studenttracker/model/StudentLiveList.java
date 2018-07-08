@@ -52,19 +52,11 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
         new AsyncTask<Void, Void, List<Student>>() {
             @Override
             protected List<Student> doInBackground(Void... voids) {
-                String[] PROJECTION = {
-                        ContactsContract.Data._ID,
-                        ContactsContract.Data.LOOKUP_KEY,
-                        ContactsContract.Data.DISPLAY_NAME_PRIMARY,
-                        ContactsContract.Data.CONTACT_ID,
-                        ContactsContract.Data.DATA1,
-                        ContactsContract.Data.MIMETYPE
-                };
                 String SELECTION = ContactsContract.Data.MIMETYPE + " LIKE ?";
                 String[] selectionArgs = { Student.MIMETYPE };
                 Cursor cursor = context.getContentResolver().query(
-                        ContactsContract.Data.CONTENT_URI,
-                        PROJECTION,
+                        Student.Data.CONTENT_URI,
+                        Student.Data.PROJECTION,
                         SELECTION,
                         selectionArgs,
                         null);
@@ -77,6 +69,7 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
                     for (int col = 0; col < cursor.getColumnCount(); ++col) {
                         student.put(cursor.getColumnName(col), cursor.getString(col));
                     }
+                    Timber.d("Student found: %s", student);
                     students.add(student);
                 }
                 cursor.close();
