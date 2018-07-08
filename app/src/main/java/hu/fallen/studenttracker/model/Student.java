@@ -59,13 +59,18 @@ public class Student {
         // public static final String  = ContactsContract.Data.;
 
         public static final String STATUS = ContactsContract.Data.DATA1;
+        public static final String LEGAL_NAME = ContactsContract.Data.DATA2;
+        public static final String AUTHORITY_ID = ContactsContract.Data.DATA3;
 
         public static final String[] PROJECTION = {
                 _ID,
                 DISPLAY_NAME_PRIMARY,
                 RAW_CONTACT_ID,
                 MIMETYPE,
-                STATUS
+
+                STATUS,
+                LEGAL_NAME,
+                AUTHORITY_ID,
         };
     }
 }
