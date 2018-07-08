@@ -5,6 +5,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -31,11 +32,11 @@ public class StudentModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    public LiveData<Cursor> getStudents() {
+    public StudentsLiveCursor getStudents() {
         return students;
     }
 
-    private static class StudentsLiveCursor extends MutableLiveData<Cursor> {
+    public static class StudentsLiveCursor extends MutableLiveData<Cursor> {
         private final Context context;
         private final ContentObserver contactObserver;
 
@@ -101,5 +102,32 @@ public class StudentModel extends AndroidViewModel {
                 }
             }.execute();
         }
+
+        @SuppressLint("StaticFieldLeak")
+        public void createFromContact(final Uri contactData) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    Cursor cursor =  context.getContentResolver().query(contactData, null, null, null, null);
+                    if (cursor == null) return null;
+                    cursor.moveToFirst();
+                    String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
+                    cursor.close();
+
+                    String groupId = PreferenceManager.getDefaultSharedPreferences(context).getString("group", null);
+                    if (groupId == null) return null;
+
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.RAW_CONTACT_ID, lookupKey);
+                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID, groupId);
+                    contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE, ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE);
+                    Uri result = context.getContentResolver().insert(ContactsContract.Data.CONTENT_URI, contentValues);
+                    Timber.d("Insert result is: %s", result);
+                    return null;
+                }
+            }.execute();
+        }
+
     }
+
 }

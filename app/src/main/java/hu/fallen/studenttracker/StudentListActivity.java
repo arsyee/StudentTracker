@@ -15,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,11 +35,8 @@ import timber.log.Timber;
  */
 public class StudentListActivity extends BaseActivity {
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
     private boolean mTwoPane;
+    private StudentModel mModel;
     private CursorRecyclerViewAdapter mCursorAdapter;
 
     @Override
@@ -67,12 +63,13 @@ public class StudentListActivity extends BaseActivity {
             mTwoPane = true;
         }
 
+        mModel = ViewModelProviders.of(this).get(StudentModel.class);
+
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
         if (Config.check(recyclerView)) {
             setupRecyclerView((RecyclerView) recyclerView);
-            StudentModel model = ViewModelProviders.of(this).get(StudentModel.class);
-            model.getStudents().observe(this, new Observer<Cursor>() {
+            mModel.getStudents().observe(this, new Observer<Cursor>() {
                 @Override
                 public void onChanged(@Nullable Cursor cursor) {
                     mCursorAdapter.swapCursor(cursor);
@@ -82,8 +79,6 @@ public class StudentListActivity extends BaseActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        int CONTACT_ID_INDEX = 0;
-        int LOOKUP_KEY_INDEX = 1;
         mCursorAdapter = new CursorRecyclerViewAdapter(this, null, mTwoPane);
         recyclerView.setAdapter(mCursorAdapter);
     }
@@ -92,28 +87,11 @@ public class StudentListActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IDs.REQUEST_CODE_ADD_STUDENT) {
             if (resultCode == RESULT_OK) {
-                Uri contactData = data.getData();
-                Timber.d("Querying...");
-                Cursor cursor =  getContentResolver().query(contactData, null, null, null, null);
-                Timber.d("Cursor length: %d (%d columns)", cursor.getCount(), cursor.getColumnCount());
-                cursor.moveToFirst();
-                String message = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
-                String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
-                Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                cursor.close();
-
-                String groupId = PreferenceManager.getDefaultSharedPreferences(this).getString("group", null);
-                if (groupId == null) return;
-
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.RAW_CONTACT_ID, lookupKey);
-                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID, groupId);
-                contentValues.put(ContactsContract.CommonDataKinds.GroupMembership.MIMETYPE, ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE);
-                Uri result = getContentResolver().insert(ContactsContract.Data.CONTENT_URI, contentValues);
-                Timber.d("Insert result is: %s", result);
+                mModel.getStudents().createFromContact(data.getData());
             } else {
                 Timber.d("onActivityResult reports failure: %d", resultCode);
             }
+            return;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
