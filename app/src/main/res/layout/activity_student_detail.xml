@@ -21,7 +21,7 @@
         android:layout_gravity="center_vertical|start"
         android:layout_margin="@dimen/fab_margin"
         app:layout_anchor="@+id/student_detail_container"
-        app:layout_anchorGravity="top|end"
+        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@android:drawable/stat_notify_chat" />
 
 </android.support.design.widget.CoordinatorLayout>
