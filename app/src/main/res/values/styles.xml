@@ -30,4 +30,14 @@
         <item name="negativeButtonText">@android:string/cancel</item>
     </style>
 
+    <style name="AppTheme.Headline" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+    </style>
+
+    <style name="AppTheme.Body" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">48dp</item>
+    </style>
+
 </resources>

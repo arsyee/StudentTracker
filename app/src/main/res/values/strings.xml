@@ -9,10 +9,15 @@
     <string name="title_activity_calendar">CalendarActivity</string>
     <string name="about">Created by Tibi</string>
     <string name="title_student_list">Students</string>
-    <string name="title_student_detail">Student Detail</string>
+    <string name="title_student_detail">Student Details</string>
     <string name="title_settings">Settings</string>
     <string name="create_new_group">Create new</string>
     <string name="grant">Grant</string>
     <string name="permission_explanation">This app needs permission to access your Contacts and
         Calendar to perform it\'s core functionality: managing your students and lessons.</string>
+    <string name="student_name">Student name</string>
+    <string name="contact_name">Contact name:</string>
+    <string name="legal_name">Legal name:</string>
+    <string name="identification">Identification</string>
+    <string name="scheduled_lessons">Scheduled lessons</string>
 </resources>

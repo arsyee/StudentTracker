@@ -1,10 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/student_detail"
-    style="?android:attr/textAppearanceLarge"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:textIsSelectable="true"
-    tools:context=".StudentDetailFragment" />
+    tools:context=".StudentDetailFragment">
+
+    <TextView
+        android:id="@+id/label_name"
+        style="@style/AppTheme.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/student_name"/>
+
+    <TextView
+        android:id="@+id/label_display_name"
+        style="@style/AppTheme.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/contact_name"
+        app:layout_constraintLeft_toLeftOf="@id/label_name"
+        app:layout_constraintTop_toBottomOf="@id/label_name"/>
+
+        <TextView
+            android:id="@+id/display_name"
+            style="@style/AppTheme.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_display_name"
+            app:layout_constraintLeft_toRightOf="@id/label_display_name"
+            tools:text="John Doe"/>
+
+    <TextView
+        android:id="@+id/label_legal_name"
+        style="@style/AppTheme.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/legal_name"
+        android:text="@string/legal_name"
+        app:layout_constraintLeft_toLeftOf="@id/label_name"
+        app:layout_constraintTop_toBottomOf="@id/label_display_name"/>
+
+        <EditText
+            android:id="@+id/legal_name"
+            style="@style/AppTheme.Body"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:paddingLeft="4dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_legal_name"
+            app:layout_constraintLeft_toRightOf="@id/label_legal_name"
+            tools:text="John Oliver Doe Jr."/>
+
+    <TextView
+        android:id="@+id/label_id"
+        style="@style/AppTheme.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/identification"
+        app:layout_constraintLeft_toLeftOf="@id/label_name"
+        app:layout_constraintTop_toBottomOf="@id/label_legal_name"/>
+
+    <TextView
+        android:id="@+id/label_lessons"
+        style="@style/AppTheme.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/scheduled_lessons"
+        app:layout_constraintLeft_toLeftOf="@id/label_name"
+        app:layout_constraintTop_toBottomOf="@id/label_id"/>
+
+    <TextView
+        android:id="@+id/label_dump"
+        style="@style/AppTheme.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data dump for logging"
+        app:layout_constraintLeft_toLeftOf="@id/label_name"
+        app:layout_constraintTop_toBottomOf="@id/label_lessons"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/student_detail"
+        style="@style/AppTheme.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        app:layout_constraintTop_toBottomOf="@id/label_dump"
+        />
+</android.support.constraint.ConstraintLayout>
