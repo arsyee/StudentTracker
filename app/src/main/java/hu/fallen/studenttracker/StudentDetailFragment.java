@@ -1,18 +1,20 @@
 package hu.fallen.studenttracker;
 
-import android.database.Cursor;
-import android.provider.ContactsContract;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.List;
+
+import hu.fallen.studenttracker.model.Student;
+import hu.fallen.studenttracker.model.StudentModel;
 
 /**
  * A fragment representing a single Student detail screen.
@@ -20,7 +22,7 @@ import android.widget.TextView;
  * in two-pane mode (on tablets) or a {@link StudentDetailActivity}
  * on handsets.
  */
-public class StudentDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class StudentDetailFragment extends Fragment {
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -53,7 +55,6 @@ public class StudentDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(DETAILS_QUERY_ID, null, this);
     }
 
     @Override
@@ -63,77 +64,25 @@ public class StudentDetailFragment extends Fragment implements LoaderManager.Loa
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            // ((TextView) mRootView.findViewById(R.id.student_detail)).setText(mItem);
+            StudentModel model = ViewModelProviders.of(this).get(StudentModel.class);
+            model.getStudents().observe(this, new Observer<List<Student>>() {
+                @Override
+                public void onChanged(@Nullable List<Student> students) {
+                    if (students == null) return;
+                    StringBuilder builder = new StringBuilder();
+                    for (Student student : students) {
+                        if (mItem.equals(student.get(Student.Data.RAW_CONTACT_ID))) {
+                            for (String key : Student.Data.PROJECTION) {
+                                builder.append(key).append(" ").append(student.get(key)).append("\n");
+                            }
+                        }
+                    }
+                    ((TextView) mRootView.findViewById(R.id.student_detail)).setText(builder.toString());
+                }
+            });
         }
 
         return mRootView;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case DETAILS_QUERY_ID:
-                final String[] PROJECTION =
-                        {
-                                ContactsContract.Data._ID,
-                                ContactsContract.Data.MIMETYPE,
-                                ContactsContract.Data.DATA1,
-                                ContactsContract.Data.DATA2,
-                                ContactsContract.Data.DATA3,
-                                ContactsContract.Data.DATA4,
-                                ContactsContract.Data.DATA5,
-                                ContactsContract.Data.DATA6,
-                                ContactsContract.Data.DATA7,
-                                ContactsContract.Data.DATA8,
-                                ContactsContract.Data.DATA9,
-                                ContactsContract.Data.DATA10,
-                                ContactsContract.Data.DATA11,
-                                ContactsContract.Data.DATA12,
-                                ContactsContract.Data.DATA13,
-                                ContactsContract.Data.DATA14,
-                                ContactsContract.Data.DATA15
-                        };
-                final String SELECTION = ContactsContract.Data.LOOKUP_KEY + " = ?";
-                // Assigns the selection parameter
-                String[] selectionArgs = {mItem};
-                // Starts the query
-                return new CursorLoader(
-                        getActivity(),
-                        ContactsContract.Data.CONTENT_URI,
-                        PROJECTION,
-                        SELECTION,
-                        selectionArgs,
-                        null
-                );
-        }
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == DETAILS_QUERY_ID) {
-            StringBuilder builder = new StringBuilder();
-            for (int n = 0; n < data.getCount(); ++n) {
-                data.moveToPosition(n);
-                for (int i = 0; i < data.getColumnCount(); ++i) {
-                    if (data.getString(i) == null) continue;
-                    builder.append(data.getColumnName(i))
-                            .append("(" + i + ")")
-                            .append(" - ")
-                            .append(data.getString(i))
-                            .append("\n");
-                }
-                builder.append("\n");
-            }
-
-            ((TextView) mRootView.findViewById(R.id.student_detail)).setText(builder.toString());
-        }
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull android.support.v4.content.Loader<Cursor> loader) {
-        if (loader.getId() == DETAILS_QUERY_ID) {
-            ((TextView) mRootView.findViewById(R.id.student_detail)).setText("");
-        }
-    }
 }
