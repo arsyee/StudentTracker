@@ -94,6 +94,16 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
                 String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                 cursor.close();
 
+                if (contactId == null) return null;
+
+                List<Student> students = getValue();
+                if (students != null) for (Student student : students) {
+                    if (contactId.equals(student.get(Student.Data.RAW_CONTACT_ID))) {
+                        Timber.d("Student already exists.");
+                        return null;
+                    }
+                }
+
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Student.Data.RAW_CONTACT_ID, contactId);
                 contentValues.put(Student.Data.MIMETYPE, Student.MIMETYPE);
