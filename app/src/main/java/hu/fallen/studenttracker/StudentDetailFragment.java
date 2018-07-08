@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import hu.fallen.studenttracker.model.Student;
 import hu.fallen.studenttracker.model.StudentModel;
+import timber.log.Timber;
 
 /**
  * A fragment representing a single Student detail screen.
@@ -76,7 +78,7 @@ public class StudentDetailFragment extends Fragment {
                 @Override
                 public void onChanged(@Nullable List<Student> students) {
                     if (students == null) return;
-                    Student student = model.getStudents().getStudentById(mItem);
+                    final Student student = model.getStudents().getStudentById(mItem);
                     if (student == null) return;
 
                     StringBuilder builder = new StringBuilder();
@@ -86,22 +88,35 @@ public class StudentDetailFragment extends Fragment {
                     ((TextView) mRootView.findViewById(R.id.student_detail)).setText(builder.toString());
 
                     ((TextView) mRootView.findViewById(R.id.display_name)).setText(student.get(Student.Data.DISPLAY_NAME_PRIMARY));
+                    final EditText legalName = mRootView.findViewById(R.id.legal_name);
                     if (student.get(Student.Data.LEGAL_NAME) == null) {
-                        ((EditText) mRootView.findViewById(R.id.legal_name)).setText(student.get(Student.Data.DISPLAY_NAME_PRIMARY));
+                        legalName.setText(student.get(Student.Data.DISPLAY_NAME_PRIMARY));
                     } else {
-                        ((EditText) mRootView.findViewById(R.id.legal_name)).setText(student.get(Student.Data.LEGAL_NAME));
+                        legalName.setText(student.get(Student.Data.LEGAL_NAME));
                     }
+                    final Switch studentActivated = mRootView.findViewById(R.id.student_activated);
                     if (Student.STATUS.INACTIVE.toString().equals(student.get(Student.Data.STATUS))) {
-                        ((Switch) mRootView.findViewById(R.id.student_activated)).setChecked(false);
+                        studentActivated.setChecked(false);
                     } else {
-                        ((Switch) mRootView.findViewById(R.id.student_activated)).setChecked(true);
+                        studentActivated.setChecked(true);
                     }
-                    ((TextView) mRootView.findViewById(R.id.auth_id)).setText(student.get(Student.Data.AUTHORITY_ID));
+                    final TextView authId = mRootView.findViewById(R.id.auth_id);
+                    authId.setText(student.get(Student.Data.AUTHORITY_ID));
+
+                    mRootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Timber.d("Save button handler found.");
+                            student.set(Student.Data.LEGAL_NAME, legalName.getText().toString());
+                            student.set(Student.Data.AUTHORITY_ID, authId.getText().toString());
+                            student.setStatus(studentActivated.isChecked() ? Student.STATUS.ACTIVE : Student.STATUS.INACTIVE);
+                            model.getStudents().update(student);
+                        }
+                    });
                     // ((TextView) mRootView.findViewById(R.id.student_detail)).setText(student.get());
                 }
             });
         }
         return mRootView;
     }
-
 }

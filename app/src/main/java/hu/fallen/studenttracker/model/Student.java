@@ -3,7 +3,9 @@ package hu.fallen.studenttracker.model;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Student {
@@ -28,6 +30,12 @@ public class Student {
 
     public void setStatus(STATUS s) {
         changeList.put(Data.STATUS, s.toString());
+    }
+
+    public void set(String key, String value) {
+        if (Data.FREETEXT_PARAM.contains(key)) {
+            changeList.put(key, value);
+        }
     }
 
     @Override
@@ -61,6 +69,12 @@ public class Student {
         public static final String STATUS = ContactsContract.Data.DATA1;
         public static final String LEGAL_NAME = ContactsContract.Data.DATA2;
         public static final String AUTHORITY_ID = ContactsContract.Data.DATA3;
+
+        static final List<String> FREETEXT_PARAM = new ArrayList<>();
+        static {
+            FREETEXT_PARAM.add(LEGAL_NAME);
+            FREETEXT_PARAM.add(AUTHORITY_ID);
+        }
 
         public static final String[] PROJECTION = {
                 _ID,
