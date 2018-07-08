@@ -4,10 +4,49 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 
 import java.util.HashMap;
+import java.util.Map;
 
-public class Student extends HashMap<String, String> {
+public class Student {
 
     public static final String MIMETYPE = "vnd.android.cursor.item/vnd.hu.fallen.studenttracker.student";
+
+    private final Map<String, String> data;
+    final Map<String, String> changeList;
+
+    Student() {
+        data = new HashMap<>();
+        changeList = new HashMap<>();
+    }
+
+    void put(String key, String value) {
+        data.put(key, value);
+    }
+
+    public String get(String key) {
+        return data.get(key);
+    }
+
+    public void setStatus(STATUS s) {
+        changeList.put(Data.STATUS, s.toString());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (changes: %s)", data, changeList);
+    }
+
+    public enum STATUS {
+        ACTIVE("active"),
+        INACTIVE("inactive");
+        private final String str;
+        STATUS(String status) {
+            str = status;
+        }
+        @Override
+        public String toString() {
+            return str;
+        }
+    }
 
     public static class Data {
         public static final Uri CONTENT_URI = ContactsContract.Data.CONTENT_URI;

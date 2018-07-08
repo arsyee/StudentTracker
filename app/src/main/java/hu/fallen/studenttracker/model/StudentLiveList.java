@@ -40,7 +40,7 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
                 loadStudents();
             }
         };
-        context.getContentResolver().registerContentObserver(ContactsContract.Data.CONTENT_URI, true, contactObserver);
+        context.getContentResolver().registerContentObserver(Student.Data.CONTENT_URI, true, contactObserver);
     }
 
     void unregisterContentObserver() {
@@ -52,7 +52,7 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
         new AsyncTask<Void, Void, List<Student>>() {
             @Override
             protected List<Student> doInBackground(Void... voids) {
-                String SELECTION = ContactsContract.Data.MIMETYPE + " LIKE ?";
+                String SELECTION = Student.Data.MIMETYPE + " LIKE ?";
                 String[] selectionArgs = { Student.MIMETYPE };
                 Cursor cursor = context.getContentResolver().query(
                         Student.Data.CONTENT_URI,
@@ -107,11 +107,29 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Student.Data.RAW_CONTACT_ID, contactId);
                 contentValues.put(Student.Data.MIMETYPE, Student.MIMETYPE);
-                Uri result = context.getContentResolver().insert(ContactsContract.Data.CONTENT_URI, contentValues);
+                Uri result = context.getContentResolver().insert(Student.Data.CONTENT_URI, contentValues);
                 Timber.d("Insert result is: %s", result);
                 return null;
             }
         }.execute();
     }
 
+    @SuppressLint("StaticFieldLeak")
+    public void update(final Student student) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Timber.d("Updating %s", student);
+                ContentValues values = new ContentValues();
+                for (String key : student.changeList.keySet()) {
+                    values.put(key, student.changeList.get(key));
+                }
+                String SELECTION = Student.Data.MIMETYPE + " LIKE ? AND " + Student.Data.RAW_CONTACT_ID + " = ?";
+                String[] selectionArgs = { Student.MIMETYPE, student.get(Student.Data.RAW_CONTACT_ID) };
+                int result = context.getContentResolver().update(Student.Data.CONTENT_URI, values, SELECTION, selectionArgs);
+                Timber.d("Number of rows updated: %d", result);
+                return null;
+            }
+        }.execute();
+    }
 }
