@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
@@ -17,11 +16,11 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class StudentsLiveList extends MutableLiveData<List<Student>> {
+public class StudentLiveList extends MutableLiveData<List<Student>> {
     private final Context context;
     private final ContentObserver contactObserver;
 
-    StudentsLiveList(Context context) {
+    StudentLiveList(Context context) {
         this.context = context;
         loadStudents();
 
@@ -38,7 +37,6 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
 
             @Override
             public void onChange(boolean selfChange, Uri uri) {
-                Timber.d("ContentObserver found Contacts has been changed.");
                 loadStudents();
             }
         };
@@ -63,11 +61,6 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
                         ContactsContract.Data.MIMETYPE
                 };
                 String SELECTION = ContactsContract.Data.MIMETYPE + " LIKE ?";
-                String group = PreferenceManager.getDefaultSharedPreferences(context).getString("group", null);
-                Timber.d("Querying group %s", group);
-                if (group == null) {
-                    return null;
-                }
                 String[] selectionArgs = { Student.MIMETYPE };
                 Cursor cursor = context.getContentResolver().query(
                         ContactsContract.Data.CONTENT_URI,
@@ -77,6 +70,7 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
                         null);
 
                 List<Student> students = new ArrayList<>();
+                if (cursor == null) return students;
                 for (int i = 0; i < cursor.getCount(); ++i) {
                     cursor.moveToPosition(i);
                     Student student = new Student();
@@ -84,7 +78,6 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
                         student.put(cursor.getColumnName(col), cursor.getString(col));
                     }
                     students.add(student);
-                    Timber.d("Student created: %s (%s)", student, student.get("asd"));
                 }
                 cursor.close();
                 return students;
@@ -92,7 +85,6 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
 
             @Override
             protected void onPostExecute(List<Student> students) {
-                // why am I doing this on the UI thread again? :-P
                 setValue(students);
             }
         }.execute();
@@ -108,9 +100,6 @@ public class StudentsLiveList extends MutableLiveData<List<Student>> {
                 cursor.moveToFirst();
                 String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                 cursor.close();
-
-                String groupId = PreferenceManager.getDefaultSharedPreferences(context).getString("group", null);
-                if (groupId == null) return null;
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Student.Data.RAW_CONTACT_ID, contactId);

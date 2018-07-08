@@ -5,11 +5,11 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
 public class StudentModel extends AndroidViewModel {
-    private StudentsLiveList students;
+    private StudentLiveList students;
 
     public StudentModel(@NonNull Application application) {
         super(application);
-        students = new StudentsLiveList(application);
+        students = new StudentLiveList(application);
     }
 
     @Override
@@ -18,7 +18,7 @@ public class StudentModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    public StudentsLiveList getStudents() {
+    public StudentLiveList getStudents() {
         return students;
     }
 
