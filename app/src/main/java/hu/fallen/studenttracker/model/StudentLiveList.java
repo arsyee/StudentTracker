@@ -132,4 +132,15 @@ public class StudentLiveList extends MutableLiveData<List<Student>> {
             }
         }.execute();
     }
+
+    public Student getStudentById(String contactId) {
+        if (contactId == null) return null;
+        List<Student> students = getValue();
+        for (Student student : students) {
+            if (contactId.equals(student.get(Student.Data.RAW_CONTACT_ID))) {
+                return student;
+            }
+        }
+        return null;
+    }
 }
