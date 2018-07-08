@@ -72,23 +72,14 @@
         app:layout_constraintLeft_toLeftOf="@id/label_name"
         app:layout_constraintTop_toBottomOf="@id/student_name_separator"/>
 
-    <TextView
-        android:id="@+id/label_is_active"
+    <Switch
+        android:id="@+id/student_activated"
         style="@style/AppTheme.BodyEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Student is active"
+        android:text="@string/student_activated"
         app:layout_constraintLeft_toLeftOf="@id/label_name"
         app:layout_constraintTop_toBottomOf="@id/label_id"/>
-
-        <Button
-            android:id="@+id/flip_active"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            app:layout_constraintBaseline_toBaselineOf="@id/label_is_active"
-            app:layout_constraintLeft_toRightOf="@id/label_is_active"
-            tools:text="ACTIVATE"/>
 
     <TextView
         android:id="@+id/label_auth_id"
@@ -98,7 +89,7 @@
         android:labelFor="@id/auth_id"
         android:text="@string/authority_id"
         app:layout_constraintLeft_toLeftOf="@id/label_name"
-        app:layout_constraintTop_toBottomOf="@id/label_is_active"/>
+        app:layout_constraintTop_toBottomOf="@id/student_activated"/>
 
         <EditText
             android:id="@+id/auth_id"

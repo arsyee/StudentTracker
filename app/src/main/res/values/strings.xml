@@ -21,8 +21,7 @@
     <string name="identification">Identification</string>
     <string name="scheduled_lessons">Scheduled lessons</string>
     <string name="authority_id">Authority ID</string>
-    <string name="student_is_active">Student is active</string>
-    <string name="student_is_inactive">Student is inactive</string>
+    <string name="student_activated">Student activated</string>
     <string name="inactivate">inactivate</string>
     <string name="activate">Activate</string>
 </resources>

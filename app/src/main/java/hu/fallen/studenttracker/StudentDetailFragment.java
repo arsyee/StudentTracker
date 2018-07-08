@@ -9,8 +9,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
@@ -92,11 +92,9 @@ public class StudentDetailFragment extends Fragment {
                         ((EditText) mRootView.findViewById(R.id.legal_name)).setText(student.get(Student.Data.LEGAL_NAME));
                     }
                     if (Student.STATUS.INACTIVE.toString().equals(student.get(Student.Data.STATUS))) {
-                        ((TextView) mRootView.findViewById(R.id.label_is_active)).setText(getString(R.string.student_is_active));
-                        ((Button) mRootView.findViewById(R.id.flip_active)).setText(getString(R.string.inactivate));
+                        ((Switch) mRootView.findViewById(R.id.student_activated)).setChecked(false);
                     } else {
-                        ((TextView) mRootView.findViewById(R.id.label_is_active)).setText(getString(R.string.student_is_inactive));
-                        ((Button) mRootView.findViewById(R.id.flip_active)).setText(getString(R.string.activate));
+                        ((Switch) mRootView.findViewById(R.id.student_activated)).setChecked(true);
                     }
                     ((TextView) mRootView.findViewById(R.id.auth_id)).setText(student.get(Student.Data.AUTHORITY_ID));
                     // ((TextView) mRootView.findViewById(R.id.student_detail)).setText(student.get());
