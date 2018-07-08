@@ -15,7 +15,7 @@
 
     <TextView
         android:id="@+id/label_display_name"
-        style="@style/AppTheme.Body"
+        style="@style/AppTheme.BodyEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/contact_name"
@@ -33,7 +33,7 @@
 
     <TextView
         android:id="@+id/label_legal_name"
-        style="@style/AppTheme.Body"
+        style="@style/AppTheme.BodyEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:labelFor="@id/legal_name"
@@ -47,7 +47,6 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:inputType="textCapWords"
-            android:paddingLeft="4dp"
             app:layout_constraintBaseline_toBaselineOf="@id/label_legal_name"
             app:layout_constraintLeft_toRightOf="@id/label_legal_name"
             tools:text="John Oliver Doe Jr."/>
@@ -82,7 +81,7 @@
 
     <TextView
         android:id="@+id/student_detail"
-        style="@style/AppTheme.Body"
+        style="@style/AppTheme.BodyEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textIsSelectable="true"
