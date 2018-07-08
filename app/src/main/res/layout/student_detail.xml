@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".StudentDetailFragment">
 
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_horizontal_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.5"
+        android:orientation="vertical"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_horizontal_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_end="16dp"
+        android:orientation="vertical"/>
+
     <!-- STUDENT NAME -->
 
     <TextView
@@ -30,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBaseline_toBaselineOf="@id/label_display_name"
-            app:layout_constraintLeft_toRightOf="@id/label_display_name"
+            app:layout_constraintLeft_toRightOf="@id/guide_horizontal_center"
             tools:text="John Doe"/>
 
     <TextView
@@ -46,11 +60,12 @@
         <EditText
             android:id="@+id/legal_name"
             style="@style/AppTheme.Body"
-            android:layout_width="200dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="textCapWords"
             app:layout_constraintBaseline_toBaselineOf="@id/label_legal_name"
-            app:layout_constraintLeft_toRightOf="@id/label_legal_name"
+            app:layout_constraintLeft_toRightOf="@id/guide_horizontal_center"
+            app:layout_constraintRight_toLeftOf="@id/guide_horizontal_end"
             tools:text="John Oliver Doe Jr."/>
 
     <View
@@ -59,7 +74,8 @@
         android:layout_height="1dp"
         style="@style/AppTheme.Separator"
         app:layout_constraintTop_toBottomOf="@id/label_legal_name"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/darker_gray"
+        android:visibility="invisible"/>
 
     <!-- IDENTIFICATION -->
 
@@ -72,14 +88,24 @@
         app:layout_constraintLeft_toLeftOf="@id/label_name"
         app:layout_constraintTop_toBottomOf="@id/student_name_separator"/>
 
-    <Switch
-        android:id="@+id/student_activated"
+    <TextView
+        android:id="@+id/label_student_activated"
         style="@style/AppTheme.BodyEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/student_activated"
+        android:labelFor="@+id/student_activated"
         app:layout_constraintLeft_toLeftOf="@id/label_name"
-        app:layout_constraintTop_toBottomOf="@id/label_id"/>
+        app:layout_constraintTop_toBottomOf="@id/label_id" />
+
+        <Switch
+            android:id="@+id/student_activated"
+            style="@style/AppTheme.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            app:layout_constraintLeft_toRightOf="@id/guide_horizontal_center"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_student_activated" />
 
     <TextView
         android:id="@+id/label_auth_id"
@@ -94,18 +120,28 @@
         <EditText
             android:id="@+id/auth_id"
             style="@style/AppTheme.Body"
-            android:layout_width="200dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="textNoSuggestions"
             app:layout_constraintBaseline_toBaselineOf="@id/label_auth_id"
-            app:layout_constraintLeft_toRightOf="@id/label_auth_id"
+            app:layout_constraintLeft_toRightOf="@id/guide_horizontal_center"
+            app:layout_constraintRight_toLeftOf="@id/guide_horizontal_end"
             tools:text="1234"/>
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        app:layout_constraintTop_toBottomOf="@id/label_auth_id"
+        app:layout_constraintRight_toLeftOf="@id/guide_horizontal_end"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored" />
 
     <View
         android:id="@+id/identification_name_separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        app:layout_constraintTop_toBottomOf="@id/label_auth_id"
+        app:layout_constraintTop_toBottomOf="@id/save_button"
         style="@style/AppTheme.Separator"
         android:background="@android:color/darker_gray"/>
 

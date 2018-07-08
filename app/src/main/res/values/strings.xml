@@ -24,4 +24,5 @@
     <string name="student_activated">Student activated</string>
     <string name="inactivate">inactivate</string>
     <string name="activate">Activate</string>
+    <string name="save">Save</string>
 </resources>
