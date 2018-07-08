@@ -20,4 +20,5 @@
     <string name="legal_name">Legal name:</string>
     <string name="identification">Identification</string>
     <string name="scheduled_lessons">Scheduled lessons</string>
+    <string name="authority_id">Authority ID</string>
 </resources>
