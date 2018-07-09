@@ -63,6 +63,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                     ActivityCompat.requestPermissions(getActivity(), new String[]{
                             Manifest.permission.READ_CONTACTS,
                             Manifest.permission.WRITE_CONTACTS,
+                            Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.WRITE_CALENDAR,
                     }, IDs.PERMISSION_REQUEST_CONTACTS_ID);
                 }
             });

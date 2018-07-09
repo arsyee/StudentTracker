@@ -26,6 +26,14 @@ public class Config {
             Timber.i("WRITE_CONTACTS not granted!");
             return false;
         }
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            Timber.i("READ_CALENDAR not granted!");
+            return false;
+        }
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            Timber.i("WRITE_CALENDAR not granted!");
+            return false;
+        }
         return true;
     }
 
