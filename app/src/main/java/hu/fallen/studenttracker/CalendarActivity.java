@@ -29,12 +29,11 @@ public class CalendarActivity extends BaseActivity {
         // Get a reference for the week view in the layout.
         mWeekView = prepareWeekView(R.id.weekView);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mWeekView.notifyDatasetChanged();
             }
         });
     }
@@ -50,13 +49,6 @@ public class CalendarActivity extends BaseActivity {
         });
 
         weekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
-            class MyWeekViewEvent extends WeekViewEvent {
-                @Override
-                public String toString() {
-                    return String.format("Event<%1$tF %1$tT - %2$tF %2$tT : %3$s (%4$x)>", getStartTime(), getEndTime(), getName(), getColor());
-                }
-            }
-
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
                 Timber.d("Month changed to: %d-%d", newYear, newMonth);
@@ -66,7 +58,7 @@ public class CalendarActivity extends BaseActivity {
                 for (int day = 1; day < 28; ++day) {
                     int numEvents = rnd.nextInt(5);
                     for (int i = 0; i < numEvents; ++i) {
-                        WeekViewEvent event = new MyWeekViewEvent();
+                        WeekViewEvent event = new WeekViewEvent();
                         event.setStartTime(Calendar.getInstance());
                         event.getStartTime().set(newYear, newMonth-1, day, rnd.nextInt(24), rnd.nextInt(4) * 15);
                         event.setEndTime((Calendar) event.getStartTime().clone());
@@ -77,7 +69,6 @@ public class CalendarActivity extends BaseActivity {
                         } else {
                             event.setColor(getResources().getColor(R.color.pastEventColor));
                         }
-                        Timber.d("Event created: %s", event);
                         monthlyList.add(event);
                     }
                 }
