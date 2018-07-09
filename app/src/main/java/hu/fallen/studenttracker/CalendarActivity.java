@@ -86,6 +86,21 @@ public class CalendarActivity extends BaseActivity {
                 Timber.d("Long event press...");
             }
         });
+
+        weekView.setEmptyViewClickListener(new WeekView.EmptyViewClickListener() {
+            @Override
+            public void onEmptyViewClicked(Calendar time) {
+                Timber.d("User clicked this time: %tc", time);
+            }
+        });
+
+        weekView.setEmptyViewLongPressListener(new WeekView.EmptyViewLongPressListener() {
+            @Override
+            public void onEmptyViewLongPress(Calendar time) {
+                Timber.d("User pressed this time: %tc", time);
+            }
+        });
+
         return weekView;
     }
 
