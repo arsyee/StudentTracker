@@ -19,8 +19,15 @@
         app:columnGap="8dp"
         app:noOfVisibleDays="3"
         app:headerRowBackgroundColor="#ffefefef"
-        app:dayBackgroundColor="#05000000"
-        app:todayBackgroundColor="#1848adff"
+
+        app:showDistinctPastFutureColor="true"
+        app:showDistinctWeekendColor="true"
+
+        app:pastBackgroundColor="@color/pastBackgroundColor"
+        app:pastWeekendBackgroundColor="@color/pastWeekendBackgroundColor"
+        app:futureBackgroundColor="@color/futureBackgroundColor"
+        app:futureWeekendBackgroundColor="@color/futureWeekendBackgroundColor"
+
         app:headerColumnBackground="#ffffffff"/>
 
     <android.support.design.widget.FloatingActionButton

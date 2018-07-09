@@ -4,4 +4,12 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorPrimaryLight">#C5CAE9</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="pastEventColor">#50000000</color>
+    <color name="futureEventColor">#C048adff</color>
+
+    <color name="pastBackgroundColor">#05000000</color>
+    <color name="pastWeekendBackgroundColor">#18ad4848</color>
+    <color name="futureBackgroundColor">#1848adff</color>
+    <color name="futureWeekendBackgroundColor">#18ff4848</color>
 </resources>

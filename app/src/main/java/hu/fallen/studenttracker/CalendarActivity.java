@@ -53,7 +53,7 @@ public class CalendarActivity extends BaseActivity {
             class MyWeekViewEvent extends WeekViewEvent {
                 @Override
                 public String toString() {
-                    return String.format("Event<%1$tF %1$tT - %2$tF %2$tT : %3$s>", getStartTime(), getEndTime(), getName());
+                    return String.format("Event<%1$tF %1$tT - %2$tF %2$tT : %3$s (%4$x)>", getStartTime(), getEndTime(), getName(), getColor());
                 }
             }
 
@@ -72,6 +72,11 @@ public class CalendarActivity extends BaseActivity {
                         event.setEndTime((Calendar) event.getStartTime().clone());
                         event.getEndTime().add(Calendar.MINUTE, (rnd.nextInt(11) + 2) * 15);
                         event.setName(names[rnd.nextInt(names.length)]);
+                        if (event.getEndTime().compareTo(Calendar.getInstance()) > 0) {
+                            event.setColor(getResources().getColor(R.color.futureEventColor));
+                        } else {
+                            event.setColor(getResources().getColor(R.color.pastEventColor));
+                        }
                         Timber.d("Event created: %s", event);
                         monthlyList.add(event);
                     }
@@ -100,6 +105,8 @@ public class CalendarActivity extends BaseActivity {
                 Timber.d("User pressed this time: %tc", time);
             }
         });
+
+        weekView.goToHour(Math.max(0, Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1));
 
         return weekView;
     }
