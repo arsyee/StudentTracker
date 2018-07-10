@@ -34,8 +34,7 @@
             android:name=".StudentListActivity"
             android:label="@string/title_student_list"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".StudentDetailActivity"
             android:label="@string/title_student_detail"
@@ -46,11 +45,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hu.fallen.studenttracker.StudentListActivity" />
         </activity>
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/title_settings"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".EventActivity"
+            android:launchMode="singleTask"
+            android:label="@string/title_activity_event"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

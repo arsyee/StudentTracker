@@ -26,4 +26,5 @@
     <string name="activate">Activate</string>
     <string name="save">Save</string>
     <string name="default_calendar">Default calendar</string>
+    <string name="title_activity_event">EventActivity</string>
 </resources>

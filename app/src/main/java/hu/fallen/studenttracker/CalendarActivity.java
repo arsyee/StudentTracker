@@ -2,8 +2,12 @@ package hu.fallen.studenttracker;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
@@ -55,13 +59,6 @@ public class CalendarActivity extends BaseActivity {
     private WeekView prepareWeekView(int layoutId) {
         final WeekView weekView = findViewById(layoutId);
 
-        weekView.setOnEventClickListener(new WeekView.EventClickListener() {
-            @Override
-            public void onEventClick(WeekViewEvent event, RectF eventRect) {
-                Timber.d("Event clicked...");
-            }
-        });
-
         weekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
@@ -92,6 +89,24 @@ public class CalendarActivity extends BaseActivity {
                     }
                 }
                 return weekViewEvent;
+            }
+        });
+
+        weekView.setOnEventClickListener(new WeekView.EventClickListener() {
+            @Override
+            public void onEventClick(WeekViewEvent weekViewEvent, RectF eventRect) {
+                Uri eventUri = CalendarContract.Events.CONTENT_URI.buildUpon().appendPath(Long.toString(weekViewEvent.getId())).build();
+                String studentCalendarId = PreferenceManager.getDefaultSharedPreferences(CalendarActivity.this).getString("calendar", null);
+                Event event = mEventModel.getEventById(Long.toString(weekViewEvent.getId()));
+                Timber.d("Event clicked: %s (%s - %s)", eventUri, event.get(Event.Data.CALENDAR_ID), studentCalendarId);
+                Intent intent;
+                if (studentCalendarId != null && studentCalendarId.equals(event.get(Event.Data.CALENDAR_ID))) {
+                    intent = new Intent(CalendarActivity.this, EventActivity.class);
+                    intent.putExtra("uri", eventUri.toString());
+                } else {
+                    intent = new Intent(Intent.ACTION_VIEW, eventUri);
+                }
+                startActivity(intent);
             }
         });
 

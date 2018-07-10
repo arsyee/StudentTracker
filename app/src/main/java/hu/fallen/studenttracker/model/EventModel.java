@@ -34,4 +34,14 @@ public class EventModel extends AndroidViewModel {
     private String getKey(int year, int month) {
         return String.format("%d-%d", year, month);
     }
+
+    public Event getEventById(String id) {
+        if (id == null) return null;
+        for (EventLiveList eventLiveList : schedule.values()) {
+            for (Event event : eventLiveList.getValue()) {
+                if (id.equals(event.get(Event.Data._ID))) return event;
+            }
+        }
+        return null;
+    }
 }
