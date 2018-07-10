@@ -7,6 +7,7 @@ import android.content.AsyncTaskLoader;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Loader;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -85,20 +86,24 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
             @Override
             public void onChanged(@Nullable List<Calendar> calendars) {
                 String account = null;
-                for (Calendar g : mCalendarModel.getCalendars().getValue()) {
-                    if (!g.get(Calendar.Data.ACCOUNT_NAME).equals(account)) {
+                for (Calendar calendar : mCalendarModel.getCalendars().getValue()) {
+                    if (!calendar.get(Calendar.Data.ACCOUNT_NAME).equals(account)) {
                         TextView textView = new TextView(getContext());
                         studentSelector.addView(textView);
-                        textView.setText(String.format("%s (%s)", g.get(Calendar.Data.ACCOUNT_NAME), g.get(Calendar.Data.ACCOUNT_TYPE)));
-                        account = g.get(Calendar.Data.ACCOUNT_NAME);
+                        textView.setText(String.format("%s (%s)", calendar.get(Calendar.Data.ACCOUNT_NAME), calendar.get(Calendar.Data.ACCOUNT_TYPE)));
+                        account = calendar.get(Calendar.Data.ACCOUNT_NAME);
                     }
                     // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
                     // textView.setText(builder.toString());
                     RadioButton radioButton = new RadioButton(getContext());
                     studentSelector.addView(radioButton);
-                    radioButton.setText(String.format("%s: %s", g.get(Calendar.Data._ID), g.get(Calendar.Data.CALENDAR_DISPLAY_NAME)));
-                    radioButton.setTag(g.get(Calendar.Data._ID));
-                    if (g.get(Calendar.Data._ID).equals(selected)) {
+                    radioButton.setText(String.format("%s: %s", calendar.get(Calendar.Data._ID), calendar.get(Calendar.Data.CALENDAR_DISPLAY_NAME)));
+                    radioButton.setButtonTintList(new ColorStateList(
+                            new int[][]{ new int[]{android.R.attr.state_enabled} },
+                            new int[] { Integer.parseInt(calendar.get(Calendar.Data.COLOR)) }
+                    ));
+                    radioButton.setTag(calendar.get(Calendar.Data._ID));
+                    if (calendar.get(Calendar.Data._ID).equals(selected)) {
                         radioButton.setChecked(true);
                     }
                 }

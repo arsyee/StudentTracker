@@ -25,4 +25,5 @@
     <string name="inactivate">inactivate</string>
     <string name="activate">Activate</string>
     <string name="save">Save</string>
+    <string name="default_calendar">Default calendar</string>
 </resources>

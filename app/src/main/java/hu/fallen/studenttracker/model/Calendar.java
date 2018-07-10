@@ -44,6 +44,8 @@ public class Calendar {
         public static final String ACCOUNT_NAME = CalendarContract.Calendars.ACCOUNT_NAME;
         public static final String ACCOUNT_TYPE = CalendarContract.Calendars.ACCOUNT_TYPE;
         public static final String CALENDAR_DISPLAY_NAME = CalendarContract.Calendars.CALENDAR_DISPLAY_NAME;
+        public static final String VISIBLE = CalendarContract.Calendars.VISIBLE;
+        public static final String COLOR = CalendarContract.Calendars.CALENDAR_COLOR;
 
         static final List<String> FREETEXT_PARAM = new ArrayList<>();
 
@@ -56,6 +58,7 @@ public class Calendar {
                 ACCOUNT_NAME,
                 ACCOUNT_TYPE,
                 CALENDAR_DISPLAY_NAME,
+                COLOR
         };
     }
 }

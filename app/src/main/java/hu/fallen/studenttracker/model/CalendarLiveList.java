@@ -2,18 +2,17 @@ package hu.fallen.studenttracker.model;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.provider.ContactsContract;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import hu.fallen.studenttracker.R;
 import timber.log.Timber;
 
 public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
@@ -52,11 +51,13 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
         new AsyncTask<Void, Void, List<Calendar>>() {
             @Override
             protected List<Calendar> doInBackground(Void... voids) {
+                String SELECTION = Calendar.Data.VISIBLE + " = ?";
+                String[] selectionArgs = { "1" };
                 @SuppressLint("MissingPermission") Cursor cursor = context.getContentResolver().query(
                         Calendar.Data.CONTENT_URI,
                         Calendar.Data.PROJECTION,
-                        null,
-                        null,
+                        SELECTION,
+                        selectionArgs,
                         null);
 
                 List<Calendar> calendars = new ArrayList<>();
@@ -66,6 +67,9 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
                     Calendar calendar = new Calendar();
                     for (int col = 0; col < cursor.getColumnCount(); ++col) {
                         calendar.put(cursor.getColumnName(col), cursor.getString(col));
+                    }
+                    if (calendar.get(Calendar.Data.CALENDAR_DISPLAY_NAME).equals(calendar.get(Calendar.Data.ACCOUNT_NAME))) {
+                        calendar.put(Calendar.Data.CALENDAR_DISPLAY_NAME, context.getResources().getString(R.string.default_calendar));
                     }
                     Timber.d("Calendar found: %s", calendar);
                     calendars.add(calendar);
