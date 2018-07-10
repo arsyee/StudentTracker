@@ -1,6 +1,8 @@
 package hu.fallen.studenttracker.utilities;
 
 import android.app.LoaderManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.AsyncTaskLoader;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -8,6 +10,7 @@ import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.view.View;
@@ -18,14 +21,18 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import hu.fallen.studenttracker.R;
 import hu.fallen.studenttracker.misc.IDs;
+import hu.fallen.studenttracker.model.Calendar;
+import hu.fallen.studenttracker.model.CalendarModel;
 import timber.log.Timber;
 
 public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat
                                                 implements LoaderManager.LoaderCallbacks<String> {
-    private static Calendar[] mCalendars;
     private View mView = null;
+    private CalendarModel mCalendarModel = null;
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
@@ -39,7 +46,7 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
             if (!(studentSelector.getChildAt(i) instanceof RadioButton)) continue;
             RadioButton radioButton = (RadioButton) studentSelector.getChildAt(i);
             if (radioButton.isChecked()) {
-                preference.setGroup((String) radioButton.getTag());
+                preference.setCalendar((String) radioButton.getTag());
                 Timber.d("Saving %s", radioButton.getTag());
                 return;
             }
@@ -47,9 +54,7 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         Timber.d("Seems nothing is selected...");
     }
 
-    public static CalendarPreferenceDialogFragmentCompat newInstance(String key, Calendar[] calendars) {
-        mCalendars = calendars;
-
+    public static CalendarPreferenceDialogFragmentCompat newInstance(String key) {
         Bundle args = new Bundle();
         args.putString(ARG_KEY, key);
 
@@ -62,37 +67,43 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
         mView = view;
-        RadioGroup studentSelector = view.findViewById(R.id.student_selector);
+        final RadioGroup studentSelector = view.findViewById(R.id.student_selector);
         if (studentSelector == null) {
             Timber.e("RadioGroup not found");
             return;
         }
-        String selected = null;
+        final String selected;
         DialogPreference preference = getPreference();
         if (preference instanceof CalendarPreference) {
-            selected = ((CalendarPreference) preference).getGroup();
+            selected = ((CalendarPreference) preference).getCalendar();
             Timber.d("Selected value on load: %s", selected);
+        } else {
+            selected = null;
         }
-        if (mCalendars != null) {
-            String account = null;
-            for (Calendar g : mCalendars) {
-                if (!g.account_name.equals(account)) {
-                    TextView textView = new TextView(getContext());
-                    studentSelector.addView(textView);
-                    textView.setText(String.format("%s (%s)", g.account_name, g.account_type));
-                    account = g.account_name;
-                }
-                // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
-                // textView.setText(builder.toString());
-                RadioButton radioButton = new RadioButton(getContext());
-                studentSelector.addView(radioButton);
-                radioButton.setText(String.format("%s: %s", g.id, g.display_name));
-                radioButton.setTag(g.id);
-                if (g.id.equals(selected)) {
-                    radioButton.setChecked(true);
+        mCalendarModel = ViewModelProviders.of(getActivity()).get(CalendarModel.class);
+        mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
+            @Override
+            public void onChanged(@Nullable List<Calendar> calendars) {
+                String account = null;
+                for (Calendar g : mCalendarModel.getCalendars().getValue()) {
+                    if (!g.get(Calendar.Data.ACCOUNT_NAME).equals(account)) {
+                        TextView textView = new TextView(getContext());
+                        studentSelector.addView(textView);
+                        textView.setText(String.format("%s (%s)", g.get(Calendar.Data.ACCOUNT_NAME), g.get(Calendar.Data.ACCOUNT_TYPE)));
+                        account = g.get(Calendar.Data.ACCOUNT_NAME);
+                    }
+                    // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
+                    // textView.setText(builder.toString());
+                    RadioButton radioButton = new RadioButton(getContext());
+                    studentSelector.addView(radioButton);
+                    radioButton.setText(String.format("%s: %s", g.get(Calendar.Data._ID), g.get(Calendar.Data.CALENDAR_DISPLAY_NAME)));
+                    radioButton.setTag(g.get(Calendar.Data._ID));
+                    if (g.get(Calendar.Data._ID).equals(selected)) {
+                        radioButton.setChecked(true);
+                    }
                 }
             }
-        }
+        });
 
         final Button createNewGroup = view.findViewById(R.id.create_new_group);
         final LinearLayout newLayout = view.findViewById(R.id.new_layout);
@@ -153,19 +164,5 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     @Override
     public void onLoaderReset(Loader<String> loader) {
         // pass
-    }
-
-    public static class Calendar {
-        String id;
-        String account_name;
-        String account_type;
-        String display_name;
-
-        Calendar(String id, String account_name, String account_type, String display_name) {
-            this.id = id;
-            this.account_name = account_name;
-            this.account_type = account_type;
-            this.display_name = display_name;
-        }
     }
 }

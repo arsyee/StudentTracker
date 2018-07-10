@@ -29,12 +29,12 @@ public class CalendarPreference extends DialogPreference {
         return null;
     }
 
-    String getGroup() {
+    String getCalendar() {
         return getPersistedString(null);
     }
 
-    void setGroup(String group) {
-        persistString(group);
+    void setCalendar(String calendar) {
+        persistString(calendar);
     }
 
     @Override
