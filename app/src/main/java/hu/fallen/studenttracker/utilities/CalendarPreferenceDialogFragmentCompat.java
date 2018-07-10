@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.view.View;
@@ -30,8 +31,7 @@ import hu.fallen.studenttracker.model.Calendar;
 import hu.fallen.studenttracker.model.CalendarModel;
 import timber.log.Timber;
 
-public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat
-                                                implements LoaderManager.LoaderCallbacks<String> {
+public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
     private View mView = null;
     private CalendarModel mCalendarModel = null;
 
@@ -128,46 +128,11 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
                 newLayout.setVisibility(View.GONE);
                 Timber.d("OK Clicked: %s", newGroupName.getText());
                 if (newGroupName.getText().toString().length() > 0) {
-                    Timber.d("So we create a Loader...");
-                    Bundle args = new Bundle();
-                    args.putString("newGroup", newGroupName.getText().toString());
-                    if (getActivity().getLoaderManager().getLoader(IDs.LOADER_ID_CREATE_GROUP) != null && getActivity().getLoaderManager().getLoader(IDs.LOADER_ID_CREATE_GROUP).isStarted()) {
-                        Timber.d("Loader is already running...");
-                        getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_CREATE_GROUP);
-                    }
-                    // getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_CREATE_GROUP, args, CalendarPreferenceDialogFragmentCompat.this).forceLoad();
+                    Snackbar.make(v, "TODO: create new calendar!", Snackbar.LENGTH_LONG).show();
                     // TODO: create Calendar instead of group!
                 }
             }
         });
     }
 
-    @Override
-    public Loader<String> onCreateLoader(int id, final Bundle args) {
-        Timber.d("This is where the Loader is created...");
-        return new AsyncTaskLoader<String>(this.getContext()) {
-            @Override
-            public String loadInBackground() {
-                Timber.d("loadInBackground called with %s", args.getString("newGroup"));
-                ContentValues values = new ContentValues();
-                values.put(ContactsContract.Groups.TITLE, args.getString("newGroup"));
-                Uri uri = CalendarPreferenceDialogFragmentCompat.this.getActivity().getContentResolver().insert(
-                        ContactsContract.Groups.CONTENT_URI,
-                        values
-                );
-                Timber.d("Insert returned with %s", uri.toString());
-                return Long.toString(ContentUris.parseId(uri));
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(Loader<String> loader, String data) {
-        Timber.d("Calendar added: %s", data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<String> loader) {
-        // pass
-    }
 }
