@@ -13,16 +13,19 @@ import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-import hu.fallen.studenttracker.model.ScheduleModel;
+import hu.fallen.studenttracker.model.CalendarModel;
+import hu.fallen.studenttracker.model.Event;
+import hu.fallen.studenttracker.model.Calendar;
+import hu.fallen.studenttracker.model.EventModel;
 import timber.log.Timber;
 
 public class CalendarActivity extends BaseActivity {
 
     private WeekView mWeekView;
-    private ScheduleModel mModel;
+    private EventModel mEventModel;
+    private CalendarModel mCalendarModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +34,11 @@ public class CalendarActivity extends BaseActivity {
 
         // Get a reference for the week view in the layout.
         mWeekView = prepareWeekView(R.id.weekView);
-        mModel = ViewModelProviders.of(this).get(ScheduleModel.class);
-        mModel.getSchedule().observe(this, new Observer<List<WeekViewEvent>>() {
+        mEventModel = ViewModelProviders.of(this).get(EventModel.class);
+        mCalendarModel = ViewModelProviders.of(this).get(CalendarModel.class);
+        mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
             @Override
-            public void onChanged(@Nullable List<WeekViewEvent> weekViewEvents) {
+            public void onChanged(@Nullable List<Calendar> calendars) {
                 mWeekView.notifyDatasetChanged();
             }
         });
@@ -49,7 +53,7 @@ public class CalendarActivity extends BaseActivity {
     }
 
     private WeekView prepareWeekView(int layoutId) {
-        WeekView weekView = findViewById(layoutId);
+        final WeekView weekView = findViewById(layoutId);
 
         weekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
@@ -63,12 +67,31 @@ public class CalendarActivity extends BaseActivity {
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
                 Timber.d("Month changed to: %d-%d", newYear, newMonth);
                 List<WeekViewEvent> monthlyList = new ArrayList<>();
-                for (WeekViewEvent event : mModel.getSchedule().getValue()) {
-                    if (event.getStartTime().get(Calendar.YEAR) == newYear && event.getStartTime().get(Calendar.MONTH) + 1 == newMonth) {
-                        monthlyList.add(event);
+                Observer<List<Event>> observer = new Observer<List<Event>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Event> events) {
+                        mWeekView.notifyDatasetChanged();
                     }
+                };
+                for (Event event : mEventModel.getSchedule(newYear, newMonth, CalendarActivity.this, observer).getValue()) {
+                    monthlyList.add(createWeekViewEvent(event));
                 }
                 return monthlyList;
+            }
+
+            private WeekViewEvent createWeekViewEvent(Event event) {
+                WeekViewEvent weekViewEvent = new WeekViewEvent(
+                        Integer.parseInt(event.get(Event.Data._ID)),
+                        event.get(Event.Data.TITLE),
+                        event.getStartTime(),
+                        event.getEndTime()
+                );
+                for (Calendar calendar : mCalendarModel.getCalendars().getValue()) {
+                    if (calendar.get(Calendar.Data._ID).equals(event.get(Event.Data.CALENDAR_ID))) {
+                        weekViewEvent.setColor(Integer.parseInt(calendar.get(Calendar.Data.COLOR)));
+                    }
+                }
+                return weekViewEvent;
             }
         });
 
@@ -76,26 +99,24 @@ public class CalendarActivity extends BaseActivity {
             @Override
             public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
                 Timber.d("Long event press...");
-                mModel.getSchedule().remove(event);
             }
         });
 
         weekView.setEmptyViewClickListener(new WeekView.EmptyViewClickListener() {
             @Override
-            public void onEmptyViewClicked(Calendar time) {
+            public void onEmptyViewClicked(java.util.Calendar time) {
                 Timber.d("User clicked this time: %tc", time);
             }
         });
 
         weekView.setEmptyViewLongPressListener(new WeekView.EmptyViewLongPressListener() {
             @Override
-            public void onEmptyViewLongPress(Calendar time) {
+            public void onEmptyViewLongPress(java.util.Calendar time) {
                 Timber.d("User pressed this time: %tc", time);
-                mModel.getSchedule().add(time);
             }
         });
 
-        weekView.goToHour(Math.max(0, Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1));
+        weekView.goToHour(Math.max(0, java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY) - 1));
 
         return weekView;
     }
