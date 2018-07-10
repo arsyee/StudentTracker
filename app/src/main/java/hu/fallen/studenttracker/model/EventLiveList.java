@@ -3,22 +3,24 @@ package hu.fallen.studenttracker.model;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.CalendarContract;
+import android.os.Handler;
 
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
-import hu.fallen.studenttracker.R;
 import timber.log.Timber;
 
 public class EventLiveList extends MutableLiveData<List<Event>> {
     private final Context context;
+    private final ContentObserver calendarObserver;
+
     private final java.util.Calendar monthStart = Calendar.getInstance();;
     private final java.util.Calendar monthEnd = Calendar.getInstance();;
 
@@ -31,6 +33,28 @@ public class EventLiveList extends MutableLiveData<List<Event>> {
         monthEnd.set(Calendar.MONTH, month - 1);
         monthEnd.add(Calendar.MONTH, 1);
         loadSchedule();
+
+        calendarObserver = new ContentObserver(new Handler()) {
+            @Override
+            public boolean deliverSelfNotifications() {
+                return super.deliverSelfNotifications();
+            }
+
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+            }
+
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                loadSchedule();
+            }
+        };
+        context.getContentResolver().registerContentObserver(Event.Data.CONTENT_URI, true, calendarObserver);
+    }
+
+    void unregisterContentObserver() {
+        context.getContentResolver().unregisterContentObserver(calendarObserver);
     }
 
     @SuppressLint("StaticFieldLeak")

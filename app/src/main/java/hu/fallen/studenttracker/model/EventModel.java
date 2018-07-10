@@ -19,6 +19,14 @@ public class EventModel extends AndroidViewModel {
         schedule = new HashMap<>();
     }
 
+    @Override
+    protected void onCleared() {
+        for (EventLiveList eventLiveList : schedule.values()) {
+            eventLiveList.unregisterContentObserver();
+        }
+        super.onCleared();
+    }
+
     public @NonNull
     EventLiveList getSchedule(int year, int month, LifecycleOwner owner, Observer<List<Event>> observer) {
         String key = getKey(year, month);
