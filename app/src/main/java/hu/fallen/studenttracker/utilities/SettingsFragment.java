@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
-import hu.fallen.studenttracker.utilities.GroupPreferenceDialogFragmentCompat.Group;
+import hu.fallen.studenttracker.utilities.CalendarPreferenceDialogFragmentCompat.Calendar;
 
 import hu.fallen.studenttracker.R;
 import timber.log.Timber;
@@ -108,7 +108,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     }
 
     private void setPreferenceSummary(Preference p, String value) {
-        if (p instanceof GroupPreference) {
+        if (p instanceof CalendarPreference) {
             Bundle args = new Bundle();
             args.putString("key", p.getKey());
             args.putString("value", value);
@@ -124,7 +124,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     public void onDisplayPreferenceDialog(Preference preference) {
         getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_GROUPS_FOR_DIALOG);
         mPreference = preference;
-        if (preference instanceof GroupPreference) {
+        if (preference instanceof CalendarPreference) {
             getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_GROUPS_FOR_DIALOG, null, this);
         } else {
             super.onDisplayPreferenceDialog(preference);
@@ -148,13 +148,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Timber.d("onCreateLoader");
         String[] PROJECTION = {
-                ContactsContract.Groups._ID,
-                ContactsContract.Groups.TITLE,
-                ContactsContract.Groups.SUMMARY_COUNT
+                CalendarContract.Calendars._ID,
+                CalendarContract.Calendars.ACCOUNT_NAME,
+                CalendarContract.Calendars.ACCOUNT_TYPE,
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
         };
         CursorLoaderWrapper cursorLoader = new CursorLoaderWrapper(
                 this.getContext(),
-                ContactsContract.Groups.CONTENT_SUMMARY_URI,
+                CalendarContract.Calendars.CONTENT_URI,
                 PROJECTION,
                 null,
                 null,
@@ -172,17 +173,18 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             return;
         }
         Timber.d("onLoadFinished: %d", loader.getId());
-        Group[] groups = new Group[cursor.getCount()];
+        CalendarPreferenceDialogFragmentCompat.Calendar[] calendars = new CalendarPreferenceDialogFragmentCompat.Calendar[cursor.getCount()];
         for (int i = 0; i < cursor.getCount(); ++i) {
             cursor.moveToPosition(i);
-            Group group = new Group(cursor.getString(0),
+            Calendar calendar = new CalendarPreferenceDialogFragmentCompat.Calendar(cursor.getString(0),
                     cursor.getString(1),
-                    cursor.getInt(2));
-            groups[i] = group;
+                    cursor.getString(2),
+                    cursor.getString(3));
+            calendars[i] = calendar;
         }
         if (loader.getId() == IDs.LOADER_ID_GROUPS_FOR_DIALOG) {
-            if (mPreference instanceof GroupPreference) {
-                GroupPreferenceDialogFragmentCompat dialogFragment = GroupPreferenceDialogFragmentCompat.newInstance(mPreference.getKey(), groups);
+            if (mPreference instanceof CalendarPreference) {
+                CalendarPreferenceDialogFragmentCompat dialogFragment = CalendarPreferenceDialogFragmentCompat.newInstance(mPreference.getKey(), calendars);
                 dialogFragment.setTargetFragment(this, 0);
                 dialogFragment.show(this.getFragmentManager(),
                         "android.support.v7.preference" +
@@ -193,8 +195,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             String key = args.getString("key");
             String value = args.getString("value");
             String groupName = "";
-            for (Group g : groups) {
-                if (g.id.equals(value)) groupName = g.name;
+            for (CalendarPreferenceDialogFragmentCompat.Calendar g : calendars) {
+                if (g.id.equals(value)) groupName = g.account_name;
             }
 
             Timber.d("We should have everything to update: %s, %s, %s", key, value, groupName);

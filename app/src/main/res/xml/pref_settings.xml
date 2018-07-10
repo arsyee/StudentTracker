@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <hu.fallen.studenttracker.utilities.GroupPreference
-        android:key="group"
-        android:title="Student group"
+    <hu.fallen.studenttracker.utilities.CalendarPreference
+        android:key="calendar"
+        android:title="Student calendar"
         style="@style/AppPreference.DialogPreference"/>
 </PreferenceScreen>

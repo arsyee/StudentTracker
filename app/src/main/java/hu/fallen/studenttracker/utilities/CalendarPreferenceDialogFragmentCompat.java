@@ -16,24 +16,25 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import hu.fallen.studenttracker.R;
 import hu.fallen.studenttracker.misc.IDs;
 import timber.log.Timber;
 
-public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat
+public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat
                                                 implements LoaderManager.LoaderCallbacks<String> {
-    private static Group[] mGroups;
+    private static Calendar[] mCalendars;
     private View mView = null;
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
-        if (!positiveResult || mView == null || !(getPreference() instanceof GroupPreference)) {
+        if (!positiveResult || mView == null || !(getPreference() instanceof CalendarPreference)) {
             Timber.d("called : %s, %s, %s", positiveResult, mView, getPreference());
             return;
         }
         RadioGroup studentSelector = mView.findViewById(R.id.student_selector);
-        GroupPreference preference = (GroupPreference) getPreference();
+        CalendarPreference preference = (CalendarPreference) getPreference();
         for (int i = 0; i < studentSelector.getChildCount(); ++i) {
             if (!(studentSelector.getChildAt(i) instanceof RadioButton)) continue;
             RadioButton radioButton = (RadioButton) studentSelector.getChildAt(i);
@@ -46,13 +47,13 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
         Timber.d("Seems nothing is selected...");
     }
 
-    public static GroupPreferenceDialogFragmentCompat newInstance(String key, Group[] groups) {
-        mGroups = groups;
+    public static CalendarPreferenceDialogFragmentCompat newInstance(String key, Calendar[] calendars) {
+        mCalendars = calendars;
 
         Bundle args = new Bundle();
         args.putString(ARG_KEY, key);
 
-        GroupPreferenceDialogFragmentCompat fragment = new GroupPreferenceDialogFragmentCompat();
+        CalendarPreferenceDialogFragmentCompat fragment = new CalendarPreferenceDialogFragmentCompat();
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,17 +69,24 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
         }
         String selected = null;
         DialogPreference preference = getPreference();
-        if (preference instanceof GroupPreference) {
-            selected = ((GroupPreference) preference).getGroup();
+        if (preference instanceof CalendarPreference) {
+            selected = ((CalendarPreference) preference).getGroup();
             Timber.d("Selected value on load: %s", selected);
         }
-        if (mGroups != null) {
-            for (Group g : mGroups) {
+        if (mCalendars != null) {
+            String account = null;
+            for (Calendar g : mCalendars) {
+                if (!g.account_name.equals(account)) {
+                    TextView textView = new TextView(getContext());
+                    studentSelector.addView(textView);
+                    textView.setText(String.format("%s (%s)", g.account_name, g.account_type));
+                    account = g.account_name;
+                }
                 // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
                 // textView.setText(builder.toString());
                 RadioButton radioButton = new RadioButton(getContext());
                 studentSelector.addView(radioButton);
-                radioButton.setText(String.format("%s: %s (%d)", g.id, g.name, g.count));
+                radioButton.setText(String.format("%s: %s", g.id, g.display_name));
                 radioButton.setTag(g.id);
                 if (g.id.equals(selected)) {
                     radioButton.setChecked(true);
@@ -111,7 +119,8 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
                         Timber.d("Loader is already running...");
                         getActivity().getLoaderManager().destroyLoader(IDs.LOADER_ID_CREATE_GROUP);
                     }
-                    getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_CREATE_GROUP, args, GroupPreferenceDialogFragmentCompat.this).forceLoad();
+                    // getActivity().getLoaderManager().initLoader(IDs.LOADER_ID_CREATE_GROUP, args, CalendarPreferenceDialogFragmentCompat.this).forceLoad();
+                    // TODO: create Calendar instead of group!
                 }
             }
         });
@@ -126,7 +135,7 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
                 Timber.d("loadInBackground called with %s", args.getString("newGroup"));
                 ContentValues values = new ContentValues();
                 values.put(ContactsContract.Groups.TITLE, args.getString("newGroup"));
-                Uri uri = GroupPreferenceDialogFragmentCompat.this.getActivity().getContentResolver().insert(
+                Uri uri = CalendarPreferenceDialogFragmentCompat.this.getActivity().getContentResolver().insert(
                         ContactsContract.Groups.CONTENT_URI,
                         values
                 );
@@ -138,7 +147,7 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
 
     @Override
     public void onLoadFinished(Loader<String> loader, String data) {
-        Timber.d("Group added: %s", data);
+        Timber.d("Calendar added: %s", data);
     }
 
     @Override
@@ -146,15 +155,17 @@ public class GroupPreferenceDialogFragmentCompat extends PreferenceDialogFragmen
         // pass
     }
 
-    public static class Group {
+    public static class Calendar {
         String id;
-        String name;
-        int count;
+        String account_name;
+        String account_type;
+        String display_name;
 
-        Group(String id, String name, int count) {
+        Calendar(String id, String account_name, String account_type, String display_name) {
             this.id = id;
-            this.name = name;
-            this.count = count;
+            this.account_name = account_name;
+            this.account_type = account_type;
+            this.display_name = display_name;
         }
     }
 }

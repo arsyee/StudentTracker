@@ -7,20 +7,20 @@ import android.util.AttributeSet;
 
 import hu.fallen.studenttracker.R;
 
-public class GroupPreference extends DialogPreference {
-    public GroupPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+public class CalendarPreference extends DialogPreference {
+    public CalendarPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public GroupPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CalendarPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public GroupPreference(Context context, AttributeSet attrs) {
+    public CalendarPreference(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.dialogPreferenceStyle);
     }
 
-    public GroupPreference(Context context) {
+    public CalendarPreference(Context context) {
         this(context, null);
     }
 
