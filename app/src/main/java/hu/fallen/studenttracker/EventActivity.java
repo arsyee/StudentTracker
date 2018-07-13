@@ -10,6 +10,8 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 import hu.fallen.studenttracker.model.Event;
 import hu.fallen.studenttracker.model.EventModel;
 import timber.log.Timber;
@@ -67,7 +69,7 @@ public class EventActivity extends BaseActivity {
 
     private void updateEventFromExtras(Intent intent) {
         if (intent.hasExtra(EXTRA_KEY.START_TIME.toString())) {
-            java.util.Calendar startTime = (java.util.Calendar) intent.getSerializableExtra(EXTRA_KEY.START_TIME.toString());
+            Calendar startTime = (Calendar) intent.getSerializableExtra(EXTRA_KEY.START_TIME.toString());
             mEventModel.getEvent().getValue().setStartTime(startTime);
             mEventModel.getEvent().notifyClientChange();
         }

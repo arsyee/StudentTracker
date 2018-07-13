@@ -19,6 +19,7 @@ import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import hu.fallen.studenttracker.misc.IDs;
@@ -138,14 +139,14 @@ public class CalendarActivity extends BaseActivity {
 
         weekView.setEmptyViewClickListener(new WeekView.EmptyViewClickListener() {
             @Override
-            public void onEmptyViewClicked(java.util.Calendar time) {
+            public void onEmptyViewClicked(Calendar time) {
                 Timber.d("User clicked this time: %tc", time);
             }
         });
 
         weekView.setEmptyViewLongPressListener(new WeekView.EmptyViewLongPressListener() {
             @Override
-            public void onEmptyViewLongPress(final java.util.Calendar time) {
+            public void onEmptyViewLongPress(final Calendar time) {
                 Timber.d("User pressed this time: %tF %tT", time, time);
                 AlertDialog.Builder builder = new AlertDialog.Builder(CalendarActivity.this);
                 builder.setTitle(R.string.create_event_action);
@@ -172,18 +173,18 @@ public class CalendarActivity extends BaseActivity {
             }
         });
 
-        weekView.goToHour(Math.max(0, java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY) - 1));
+        weekView.goToHour(Math.max(0, Calendar.getInstance().get(Calendar.HOUR_OF_DAY) - 1));
 
         return weekView;
     }
 
-    private void createLesson(java.util.Calendar selectedTime) {
-        java.util.Calendar startTime = (java.util.Calendar) selectedTime.clone();
-        startTime.set(java.util.Calendar.MINUTE, 15 * (startTime.get(java.util.Calendar.MINUTE) / 15));
-        java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+    private void createLesson(Calendar selectedTime) {
+        Calendar startTime = (Calendar) selectedTime.clone();
+        startTime.set(Calendar.MINUTE, 15 * (startTime.get(Calendar.MINUTE) / 15));
+        Calendar endTime = (Calendar) startTime.clone();
         int lessonLength = PreferenceManager.getDefaultSharedPreferences(this).getInt(IDs.PREFERENCE.LESSON_LENGTH.toString(), 60);
         int numLessons = PreferenceManager.getDefaultSharedPreferences(this).getInt(IDs.PREFERENCE.NUM_LESSONS.toString(), 1);
-        endTime.add(java.util.Calendar.MINUTE, lessonLength * numLessons);
+        endTime.add(Calendar.MINUTE, lessonLength * numLessons);
 
         Intent intent = new Intent(CalendarActivity.this, EventActivity.class);
         intent.putExtra(EventActivity.EXTRA_KEY.START_TIME.toString(), startTime);
@@ -191,13 +192,13 @@ public class CalendarActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    private void createRegular(java.util.Calendar selectedTime) {
+    private void createRegular(Calendar selectedTime) {
         Intent intent = new Intent(Intent.ACTION_EDIT, CalendarContract.Events.CONTENT_URI);
-        java.util.Calendar startTime = (java.util.Calendar) selectedTime.clone();
-        startTime.set(java.util.Calendar.MINUTE, 15 * (startTime.get(java.util.Calendar.MINUTE) / 15));
+        Calendar startTime = (Calendar) selectedTime.clone();
+        startTime.set(Calendar.MINUTE, 15 * (startTime.get(Calendar.MINUTE) / 15));
         intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTime.getTimeInMillis());
-        java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-        endTime.add(java.util.Calendar.HOUR, 1);
+        Calendar endTime = (Calendar) startTime.clone();
+        endTime.add(Calendar.HOUR, 1);
         intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis());
         Timber.d("Firing create new event: %s -> %s", String.format("%1$tF %1$tT", startTime), String.format("%1$tF %1$tT", endTime));
         startActivity(intent);

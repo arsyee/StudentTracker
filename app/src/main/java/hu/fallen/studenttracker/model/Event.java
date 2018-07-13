@@ -37,16 +37,16 @@ public class Event {
         return String.format("%s (changes: %s)", data, changeList);
     }
 
-    public java.util.Calendar getStartTime() {
+    public Calendar getStartTime() {
         if (data.get(Data.DTSTART) == null) return null;
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(data.get(Data.DTSTART)));
         return calendar;
     }
 
-    public java.util.Calendar getEndTime() {
+    public Calendar getEndTime() {
         if (data.get(Data.DTEND) == null) return null;
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(data.get(Data.DTEND)));
         return calendar;
     }

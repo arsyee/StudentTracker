@@ -21,8 +21,8 @@ public class EventLiveList extends MutableLiveData<List<Event>> {
     private final Context context;
     private final ContentObserver calendarObserver;
 
-    private final java.util.Calendar monthStart = Calendar.getInstance();;
-    private final java.util.Calendar monthEnd = Calendar.getInstance();;
+    private final Calendar monthStart = Calendar.getInstance();;
+    private final Calendar monthEnd = Calendar.getInstance();;
 
     EventLiveList(Context context, int year, int month) {
         this.context = context;
