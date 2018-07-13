@@ -16,7 +16,7 @@ public class IDs {
     public enum PREFERENCE {
         CALENDAR("calendar", String.class, null),
         LESSON_LENGTH("lessonLength", Integer.class, 60),
-        NUM_LESSONS("numLessons", Integer.class, 1);
+        NUM_LESSONS("numLessons", Integer.class, 2);
 
         private final String key;
         private final Class type;
