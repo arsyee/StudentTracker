@@ -182,8 +182,8 @@ public class CalendarActivity extends BaseActivity {
         Calendar startTime = (Calendar) selectedTime.clone();
         startTime.set(Calendar.MINUTE, 15 * (startTime.get(Calendar.MINUTE) / 15));
         Calendar endTime = (Calendar) startTime.clone();
-        int lessonLength = PreferenceManager.getDefaultSharedPreferences(this).getInt(IDs.PREFERENCE.LESSON_LENGTH.toString(), 60);
-        int numLessons = PreferenceManager.getDefaultSharedPreferences(this).getInt(IDs.PREFERENCE.NUM_LESSONS.toString(), 1);
+        int lessonLength = IDs.PREFERENCE.LESSON_LENGTH.getInt(this);
+        int numLessons = IDs.PREFERENCE.NUM_LESSONS.getInt(this);
         endTime.add(Calendar.MINUTE, lessonLength * numLessons);
 
         Intent intent = new Intent(CalendarActivity.this, EventActivity.class);
@@ -206,7 +206,7 @@ public class CalendarActivity extends BaseActivity {
 
     private void showEvent(WeekViewEvent weekViewEvent) {
         Uri eventUri = CalendarContract.Events.CONTENT_URI.buildUpon().appendPath(Long.toString(weekViewEvent.getId())).build();
-        String studentCalendarId = PreferenceManager.getDefaultSharedPreferences(CalendarActivity.this).getString(IDs.PREFERENCE.CALENDAR.toString(), null);
+        String studentCalendarId = (String) IDs.PREFERENCE.CALENDAR.get(this);
         Event event = mEventListModel.getEventById(Long.toString(weekViewEvent.getId()));
         Timber.d("Opening event: %s (%s - %s)", eventUri, event.get(Event.Data.CALENDAR_ID), studentCalendarId);
         Intent intent;
