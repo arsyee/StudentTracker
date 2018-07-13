@@ -42,8 +42,8 @@ public class Config {
             configSnack(view);
             return false;
         }
-        if (PreferenceManager.getDefaultSharedPreferences(context).getString("group", null) == null) {
-            Timber.i("Configuration missing: group");
+        if (PreferenceManager.getDefaultSharedPreferences(context).getString(IDs.PREFERENCE.CALENDAR.toString(), null) == null) {
+            Timber.i("Configuration missing: %s", IDs.PREFERENCE.CALENDAR.toString());
             configSnack(view);
             return false;
         }
