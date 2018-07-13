@@ -15,11 +15,11 @@ import java.util.List;
 import hu.fallen.studenttracker.R;
 import timber.log.Timber;
 
-public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
+public class GoogleCalendarLiveList extends MutableLiveData<List<GoogleCalendar>> {
     private final Context context;
     private final ContentObserver contactObserver;
 
-    CalendarLiveList(Context context) {
+    GoogleCalendarLiveList(Context context) {
         this.context = context;
         loadCalendars();
 
@@ -39,7 +39,7 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
                 loadCalendars();
             }
         };
-        context.getContentResolver().registerContentObserver(Calendar.Data.CONTENT_URI, true, contactObserver);
+        context.getContentResolver().registerContentObserver(GoogleCalendar.Data.CONTENT_URI, true, contactObserver);
     }
 
     void unregisterContentObserver() {
@@ -48,39 +48,39 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
 
     @SuppressLint("StaticFieldLeak")
     private void loadCalendars() {
-        new AsyncTask<Void, Void, List<Calendar>>() {
+        new AsyncTask<Void, Void, List<GoogleCalendar>>() {
             @Override
-            protected List<Calendar> doInBackground(Void... voids) {
-                String SELECTION = Calendar.Data.VISIBLE + " = ?";
+            protected List<GoogleCalendar> doInBackground(Void... voids) {
+                String SELECTION = GoogleCalendar.Data.VISIBLE + " = ?";
                 String[] selectionArgs = { "1" };
                 @SuppressLint("MissingPermission") Cursor cursor = context.getContentResolver().query(
-                        Calendar.Data.CONTENT_URI,
-                        Calendar.Data.PROJECTION,
+                        GoogleCalendar.Data.CONTENT_URI,
+                        GoogleCalendar.Data.PROJECTION,
                         SELECTION,
                         selectionArgs,
                         null);
 
-                List<Calendar> calendars = new ArrayList<>();
-                if (cursor == null) return calendars;
+                List<GoogleCalendar> googleCalendars = new ArrayList<>();
+                if (cursor == null) return googleCalendars;
                 for (int i = 0; i < cursor.getCount(); ++i) {
                     cursor.moveToPosition(i);
-                    Calendar calendar = new Calendar();
+                    GoogleCalendar googleCalendar = new GoogleCalendar();
                     for (int col = 0; col < cursor.getColumnCount(); ++col) {
-                        calendar.put(cursor.getColumnName(col), cursor.getString(col));
+                        googleCalendar.put(cursor.getColumnName(col), cursor.getString(col));
                     }
-                    if (calendar.get(Calendar.Data.CALENDAR_DISPLAY_NAME).equals(calendar.get(Calendar.Data.ACCOUNT_NAME))) {
-                        calendar.put(Calendar.Data.CALENDAR_DISPLAY_NAME, context.getResources().getString(R.string.default_calendar));
+                    if (googleCalendar.get(GoogleCalendar.Data.CALENDAR_DISPLAY_NAME).equals(googleCalendar.get(GoogleCalendar.Data.ACCOUNT_NAME))) {
+                        googleCalendar.put(GoogleCalendar.Data.CALENDAR_DISPLAY_NAME, context.getResources().getString(R.string.default_calendar));
                     }
-                    Timber.d("Calendar found: %s", calendar);
-                    calendars.add(calendar);
+                    Timber.d("GoogleCalendar found: %s", googleCalendar);
+                    googleCalendars.add(googleCalendar);
                 }
                 cursor.close();
-                return calendars;
+                return googleCalendars;
             }
 
             @Override
-            protected void onPostExecute(List<Calendar> calendars) {
-                setValue(calendars);
+            protected void onPostExecute(List<GoogleCalendar> googleCalendars) {
+                setValue(googleCalendars);
             }
         }.execute();
     }
@@ -99,18 +99,18 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
 
                 if (contactId == null) return null;
 
-                List<Calendar> calendars = getValue();
-                if (calendars != null) for (Calendar calendar : calendars) {
-                    if (contactId.equals(calendar.get(Calendar.Data.RAW_CONTACT_ID))) {
-                        Timber.d("Calendar already exists.");
+                List<GoogleCalendar> calendars = getValue();
+                if (calendars != null) for (GoogleCalendar calendar : calendars) {
+                    if (contactId.equals(calendar.get(GoogleCalendar.Data.RAW_CONTACT_ID))) {
+                        Timber.d("GoogleCalendar already exists.");
                         return null;
                     }
                 }
 
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(Calendar.Data.RAW_CONTACT_ID, contactId);
-                contentValues.put(Calendar.Data.MIMETYPE, Calendar.MIMETYPE);
-                Uri result = context.getContentResolver().insert(Calendar.Data.CONTENT_URI, contentValues);
+                contentValues.put(GoogleCalendar.Data.RAW_CONTACT_ID, contactId);
+                contentValues.put(GoogleCalendar.Data.MIMETYPE, GoogleCalendar.MIMETYPE);
+                Uri result = context.getContentResolver().insert(GoogleCalendar.Data.CONTENT_URI, contentValues);
                 Timber.d("Insert result is: %s", result);
                 return null;
             }
@@ -118,7 +118,7 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void update(final Calendar calendar) {
+    public void update(final GoogleCalendar calendar) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -127,20 +127,20 @@ public class CalendarLiveList extends MutableLiveData<List<Calendar>> {
                 for (String key : calendar.changeList.keySet()) {
                     values.put(key, calendar.changeList.get(key));
                 }
-                String SELECTION = Calendar.Data.MIMETYPE + " LIKE ? AND " + Calendar.Data.RAW_CONTACT_ID + " = ?";
-                String[] selectionArgs = { Calendar.MIMETYPE, calendar.get(Calendar.Data.RAW_CONTACT_ID) };
-                int result = context.getContentResolver().update(Calendar.Data.CONTENT_URI, values, SELECTION, selectionArgs);
+                String SELECTION = GoogleCalendar.Data.MIMETYPE + " LIKE ? AND " + GoogleCalendar.Data.RAW_CONTACT_ID + " = ?";
+                String[] selectionArgs = { GoogleCalendar.MIMETYPE, calendar.get(GoogleCalendar.Data.RAW_CONTACT_ID) };
+                int result = context.getContentResolver().update(GoogleCalendar.Data.CONTENT_URI, values, SELECTION, selectionArgs);
                 Timber.d("Number of rows updated: %d", result);
                 return null;
             }
         }.execute();
     }
 
-    public Calendar getCalendarById(String contactId) {
+    public GoogleCalendar getCalendarById(String contactId) {
         if (contactId == null) return null;
-        List<Calendar> calendars = getValue();
-        for (Calendar calendar : calendars) {
-            if (contactId.equals(calendar.get(Calendar.Data.RAW_CONTACT_ID))) {
+        List<GoogleCalendar> calendars = getValue();
+        for (GoogleCalendar calendar : calendars) {
+            if (contactId.equals(calendar.get(GoogleCalendar.Data.RAW_CONTACT_ID))) {
                 return calendar;
             }
         }

@@ -1,17 +1,10 @@
 package hu.fallen.studenttracker.utilities;
 
 import android.Manifest;
-import android.app.LoaderManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -27,8 +20,8 @@ import java.util.List;
 
 import hu.fallen.studenttracker.misc.Config;
 import hu.fallen.studenttracker.misc.IDs;
-import hu.fallen.studenttracker.model.Calendar;
-import hu.fallen.studenttracker.model.CalendarModel;
+import hu.fallen.studenttracker.model.GoogleCalendar;
+import hu.fallen.studenttracker.model.GoogleCalendarModel;
 
 import hu.fallen.studenttracker.R;
 import timber.log.Timber;
@@ -36,7 +29,7 @@ import timber.log.Timber;
 public class SettingsFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener {
     private boolean mPermissionsGranted = false;
-    private CalendarModel mCalendarModel;
+    private GoogleCalendarModel mGoogleCalendarModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,10 +68,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             });
             snackbar.show();
         } else if (getActivity() != null) {
-            mCalendarModel = ViewModelProviders.of(getActivity()).get(CalendarModel.class);
-            mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
+            mGoogleCalendarModel = ViewModelProviders.of(getActivity()).get(GoogleCalendarModel.class);
+            mGoogleCalendarModel.getCalendars().observe(this, new Observer<List<GoogleCalendar>>() {
                 @Override
-                public void onChanged(@Nullable List<Calendar> calendars) {
+                public void onChanged(@Nullable List<GoogleCalendar> googleCalendars) {
                     refreshPreferences();
                 }
             });
@@ -122,11 +115,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     private void setPreferenceSummary(Preference p, String value) {
         if (p instanceof CalendarPreference) {
-            if (mCalendarModel != null) {
-                for (Calendar calendar : mCalendarModel.getCalendars().getValue()) {
-                    if (calendar.get(Calendar.Data._ID).equals(value)) {
+            if (mGoogleCalendarModel != null) {
+                for (GoogleCalendar googleCalendar : mGoogleCalendarModel.getCalendars().getValue()) {
+                    if (googleCalendar.get(GoogleCalendar.Data._ID).equals(value)) {
                         String key = p.getKey();
-                        String calendarName = calendar.get(Calendar.Data.CALENDAR_DISPLAY_NAME);
+                        String calendarName = googleCalendar.get(GoogleCalendar.Data.CALENDAR_DISPLAY_NAME);
                         Timber.d("We should have everything to update: %s, %s, %s", key, value, calendarName);
                         p.setSummary(calendarName);
                     }

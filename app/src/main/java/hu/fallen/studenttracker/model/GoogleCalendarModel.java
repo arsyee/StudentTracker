@@ -4,12 +4,12 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
-public class CalendarModel extends AndroidViewModel {
-    private CalendarLiveList calendars;
+public class GoogleCalendarModel extends AndroidViewModel {
+    private GoogleCalendarLiveList calendars;
 
-    public CalendarModel(@NonNull Application application) {
+    public GoogleCalendarModel(@NonNull Application application) {
         super(application);
-        calendars = new CalendarLiveList(application);
+        calendars = new GoogleCalendarLiveList(application);
     }
 
     @Override
@@ -18,7 +18,7 @@ public class CalendarModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    public CalendarLiveList getCalendars() {
+    public GoogleCalendarLiveList getCalendars() {
         return calendars;
     }
 

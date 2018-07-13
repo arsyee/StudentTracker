@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hu.fallen.studenttracker.misc.IDs;
-import hu.fallen.studenttracker.model.CalendarModel;
+import hu.fallen.studenttracker.model.GoogleCalendarModel;
 import hu.fallen.studenttracker.model.Event;
-import hu.fallen.studenttracker.model.Calendar;
+import hu.fallen.studenttracker.model.GoogleCalendar;
 import hu.fallen.studenttracker.model.EventListModel;
 import timber.log.Timber;
 
@@ -32,7 +32,7 @@ public class CalendarActivity extends BaseActivity {
 
     private WeekView mWeekView;
     private EventListModel mEventListModel;
-    private CalendarModel mCalendarModel;
+    private GoogleCalendarModel mGoogleCalendarModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +42,10 @@ public class CalendarActivity extends BaseActivity {
         // Get a reference for the week view in the layout.
         mWeekView = prepareWeekView(R.id.weekView);
         mEventListModel = ViewModelProviders.of(this).get(EventListModel.class);
-        mCalendarModel = ViewModelProviders.of(this).get(CalendarModel.class);
-        mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
+        mGoogleCalendarModel = ViewModelProviders.of(this).get(GoogleCalendarModel.class);
+        mGoogleCalendarModel.getCalendars().observe(this, new Observer<List<GoogleCalendar>>() {
             @Override
-            public void onChanged(@Nullable List<Calendar> calendars) {
+            public void onChanged(@Nullable List<GoogleCalendar> googleCalendars) {
                 mWeekView.notifyDatasetChanged();
             }
         });
@@ -86,9 +86,9 @@ public class CalendarActivity extends BaseActivity {
                         event.getStartTime(),
                         event.getEndTime()
                 );
-                for (Calendar calendar : mCalendarModel.getCalendars().getValue()) {
-                    if (calendar.get(Calendar.Data._ID).equals(event.get(Event.Data.CALENDAR_ID))) {
-                        weekViewEvent.setColor(Integer.parseInt(calendar.get(Calendar.Data.COLOR)));
+                for (GoogleCalendar googleCalendar : mGoogleCalendarModel.getCalendars().getValue()) {
+                    if (googleCalendar.get(GoogleCalendar.Data._ID).equals(event.get(Event.Data.CALENDAR_ID))) {
+                        weekViewEvent.setColor(Integer.parseInt(googleCalendar.get(GoogleCalendar.Data.COLOR)));
                     }
                 }
                 return weekViewEvent;

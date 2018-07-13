@@ -1,16 +1,9 @@
 package hu.fallen.studenttracker.utilities;
 
-import android.app.LoaderManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.AsyncTaskLoader;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Loader;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.preference.DialogPreference;
@@ -26,14 +19,13 @@ import android.widget.TextView;
 import java.util.List;
 
 import hu.fallen.studenttracker.R;
-import hu.fallen.studenttracker.misc.IDs;
-import hu.fallen.studenttracker.model.Calendar;
-import hu.fallen.studenttracker.model.CalendarModel;
+import hu.fallen.studenttracker.model.GoogleCalendar;
+import hu.fallen.studenttracker.model.GoogleCalendarModel;
 import timber.log.Timber;
 
 public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
     private View mView = null;
-    private CalendarModel mCalendarModel = null;
+    private GoogleCalendarModel mGoogleCalendarModel = null;
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
@@ -81,29 +73,29 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         } else {
             selected = null;
         }
-        mCalendarModel = ViewModelProviders.of(getActivity()).get(CalendarModel.class);
-        mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
+        mGoogleCalendarModel = ViewModelProviders.of(getActivity()).get(GoogleCalendarModel.class);
+        mGoogleCalendarModel.getCalendars().observe(this, new Observer<List<GoogleCalendar>>() {
             @Override
-            public void onChanged(@Nullable List<Calendar> calendars) {
+            public void onChanged(@Nullable List<GoogleCalendar> googleCalendars) {
                 String account = null;
-                for (Calendar calendar : mCalendarModel.getCalendars().getValue()) {
-                    if (!calendar.get(Calendar.Data.ACCOUNT_NAME).equals(account)) {
+                for (GoogleCalendar googleCalendar : mGoogleCalendarModel.getCalendars().getValue()) {
+                    if (!googleCalendar.get(GoogleCalendar.Data.ACCOUNT_NAME).equals(account)) {
                         TextView textView = new TextView(getContext());
                         studentSelector.addView(textView);
-                        textView.setText(String.format("%s (%s)", calendar.get(Calendar.Data.ACCOUNT_NAME), calendar.get(Calendar.Data.ACCOUNT_TYPE)));
-                        account = calendar.get(Calendar.Data.ACCOUNT_NAME);
+                        textView.setText(String.format("%s (%s)", googleCalendar.get(GoogleCalendar.Data.ACCOUNT_NAME), googleCalendar.get(GoogleCalendar.Data.ACCOUNT_TYPE)));
+                        account = googleCalendar.get(GoogleCalendar.Data.ACCOUNT_NAME);
                     }
                     // builder.append(g.mID).append(" - ").append(g.mName).append("\n");
                     // textView.setText(builder.toString());
                     RadioButton radioButton = new RadioButton(getContext());
                     studentSelector.addView(radioButton);
-                    radioButton.setText(String.format("%s: %s", calendar.get(Calendar.Data._ID), calendar.get(Calendar.Data.CALENDAR_DISPLAY_NAME)));
+                    radioButton.setText(String.format("%s: %s", googleCalendar.get(GoogleCalendar.Data._ID), googleCalendar.get(GoogleCalendar.Data.CALENDAR_DISPLAY_NAME)));
                     radioButton.setButtonTintList(new ColorStateList(
                             new int[][]{ new int[]{android.R.attr.state_enabled} },
-                            new int[] { Integer.parseInt(calendar.get(Calendar.Data.COLOR)) }
+                            new int[] { Integer.parseInt(googleCalendar.get(GoogleCalendar.Data.COLOR)) }
                     ));
-                    radioButton.setTag(calendar.get(Calendar.Data._ID));
-                    if (calendar.get(Calendar.Data._ID).equals(selected)) {
+                    radioButton.setTag(googleCalendar.get(GoogleCalendar.Data._ID));
+                    if (googleCalendar.get(GoogleCalendar.Data._ID).equals(selected)) {
                         radioButton.setChecked(true);
                     }
                 }
@@ -129,7 +121,7 @@ public class CalendarPreferenceDialogFragmentCompat extends PreferenceDialogFrag
                 Timber.d("OK Clicked: %s", newGroupName.getText());
                 if (newGroupName.getText().toString().length() > 0) {
                     Snackbar.make(v, "TODO: create new calendar!", Snackbar.LENGTH_LONG).show();
-                    // TODO: create Calendar instead of group!
+                    // TODO: create GoogleCalendar instead of group!
                 }
             }
         });

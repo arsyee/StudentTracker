@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Calendar {
+public class GoogleCalendar {
     private final Map<String, String> data;
     final Map<String, String> changeList;
 
-    Calendar() {
+    GoogleCalendar() {
         data = new HashMap<>();
         changeList = new HashMap<>();
     }
