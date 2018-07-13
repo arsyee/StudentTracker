@@ -38,15 +38,21 @@ public class Event {
     }
 
     public java.util.Calendar getStartTime() {
+        if (data.get(Data.DTSTART) == null) return null;
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(data.get(Data.DTSTART)));
         return calendar;
     }
 
-    public Calendar getEndTime() {
+    public java.util.Calendar getEndTime() {
+        if (data.get(Data.DTEND) == null) return null;
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(data.get(Data.DTEND)));
         return calendar;
+    }
+
+    public void setStartTime(Calendar startTime) {
+        data.put(Data.DTSTART, Long.toString(startTime.getTimeInMillis()));
     }
 
     public static class Data {
