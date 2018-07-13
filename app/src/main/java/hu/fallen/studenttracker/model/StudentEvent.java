@@ -19,7 +19,7 @@ public class StudentEvent extends Event {
     }
 
     public int getLessonCount() {
-        if (data.get(Data.DTSTART) == null || data.get(Data.DTEND) == null) return 0;
+        if (data.get(Data.DTSTART) == null || data.get(Data.DTEND) == null) return IDs.PREFERENCE.NUM_LESSONS.getInt(mContext);
         long startTime = Long.parseLong(data.get(Data.DTSTART));
         long endTime = Long.parseLong(data.get(Data.DTEND));
         long duration = (endTime - startTime) / 60 / 1000;

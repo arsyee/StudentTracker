@@ -122,4 +122,22 @@
             app:layout_constraintLeft_toRightOf="@id/end_date"
             tools:text="00:00"/>
 
+    <TextView
+        android:id="@+id/label_lesson_count"
+        style="@style/AppTheme.BodyEntry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lesson_count"
+        app:layout_constraintLeft_toLeftOf="@id/label_student"
+        app:layout_constraintTop_toBottomOf="@id/label_end_time"/>
+
+        <TextView
+            android:id="@+id/lesson_count"
+            style="@style/AppTheme.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_lesson_count"
+            app:layout_constraintLeft_toRightOf="@id/guide_horizontal_center"
+            tools:text="2000-01-01"/>
+
 </android.support.constraint.ConstraintLayout>

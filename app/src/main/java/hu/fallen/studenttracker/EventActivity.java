@@ -86,6 +86,6 @@ public class EventActivity extends BaseActivity {
             ((TextView) findViewById(R.id.end_date)).setText(String.format("%1$tF", studentEvent.getEndTime()));
             ((TextView) findViewById(R.id.end_time)).setText(String.format("%1$tT", studentEvent.getEndTime()));
         }
-        Timber.d("Number of lessons: %d", studentEvent.getLessonCount());
+        ((TextView) findViewById(R.id.lesson_count)).setText(Integer.toString(studentEvent.getLessonCount()));
     }
 }
