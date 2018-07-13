@@ -33,4 +33,8 @@
     <string name="select_action_event">You have selected the following event:</string>
     <string name="create_event_action">Create event</string>
     <string name="create_event_text">What event type do you want to create?</string>
+    <string name="student_details">Student details</string>
+    <string name="lesson_details">Lesson details</string>
+    <string name="event_start">Event starts:</string>
+    <string name="event_end">Event ends:</string>
 </resources>
