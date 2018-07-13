@@ -1,5 +1,6 @@
 package hu.fallen.studenttracker.model;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Event {
-    private final Map<String, String> data;
+    final Map<String, String> data;
     final Map<String, String> changeList;
 
     Event() {
@@ -18,8 +19,11 @@ public class Event {
         changeList = new HashMap<>();
     }
 
-    void put(String key, String value) {
-        data.put(key, value);
+    Event(Cursor cursor) {
+        this();
+        for (int col = 0; col < cursor.getColumnCount(); ++col) {
+            data.put(cursor.getColumnName(col), cursor.getString(col));
+        }
     }
 
     public String get(String key) {

@@ -79,10 +79,7 @@ public class EventLiveList extends MutableLiveData<List<Event>> {
                 if (cursor == null) return events;
                 for (int i = 0; i < cursor.getCount(); ++i) {
                     cursor.moveToPosition(i);
-                    Event event = new Event();
-                    for (int col = 0; col < cursor.getColumnCount(); ++col) {
-                        event.put(cursor.getColumnName(col), cursor.getString(col));
-                    }
+                    Event event = new Event(cursor);
                     Timber.d("Event found: %s", event);
                     events.add(event);
                 }

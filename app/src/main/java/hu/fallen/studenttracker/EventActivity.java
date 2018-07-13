@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 
-import hu.fallen.studenttracker.model.Event;
 import hu.fallen.studenttracker.model.EventModel;
+import hu.fallen.studenttracker.model.StudentEvent;
 import timber.log.Timber;
 
 public class EventActivity extends BaseActivity {
@@ -49,9 +49,9 @@ public class EventActivity extends BaseActivity {
         });
 
         mEventModel = ViewModelProviders.of(this).get(EventModel.class);
-        mEventModel.getEvent().observe(this, new Observer<Event>() {
+        mEventModel.getEvent().observe(this, new Observer<StudentEvent>() {
             @Override
-            public void onChanged(@Nullable Event event) {
+            public void onChanged(@Nullable StudentEvent event) {
                 updateUI();
             }
         });
@@ -76,15 +76,16 @@ public class EventActivity extends BaseActivity {
     }
 
     private void updateUI() {
-        Event event = mEventModel.getEvent().getValue();
-        if (event == null) return; // TODO: this is where I should clear the UI, but I think here I'd have more issues than that
-        if (event.getStartTime() != null) {
-            ((TextView) findViewById(R.id.start_date)).setText(String.format("%1$tF", event.getStartTime()));
-            ((TextView) findViewById(R.id.start_time)).setText(String.format("%1$tT", event.getStartTime()));
+        StudentEvent studentEvent = mEventModel.getEvent().getValue();
+        if (studentEvent == null) return; // TODO: this is where I should clear the UI, but I think here I'd have more issues than that
+        if (studentEvent.getStartTime() != null) {
+            ((TextView) findViewById(R.id.start_date)).setText(String.format("%1$tF", studentEvent.getStartTime()));
+            ((TextView) findViewById(R.id.start_time)).setText(String.format("%1$tT", studentEvent.getStartTime()));
         }
-        if (event.getEndTime() != null) {
-            ((TextView) findViewById(R.id.end_date)).setText(String.format("%1$tF", event.getEndTime()));
-            ((TextView) findViewById(R.id.end_time)).setText(String.format("%1$tT", event.getEndTime()));
+        if (studentEvent.getEndTime() != null) {
+            ((TextView) findViewById(R.id.end_date)).setText(String.format("%1$tF", studentEvent.getEndTime()));
+            ((TextView) findViewById(R.id.end_time)).setText(String.format("%1$tT", studentEvent.getEndTime()));
         }
+        Timber.d("Number of lessons: %d", studentEvent.getLessonCount());
     }
 }

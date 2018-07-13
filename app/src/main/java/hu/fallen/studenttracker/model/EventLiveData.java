@@ -9,21 +9,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 
-import com.alamkanak.weekview.WeekViewEvent;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
 import timber.log.Timber;
 
-public class EventLiveData extends MutableLiveData<Event> {
+public class EventLiveData extends MutableLiveData<StudentEvent> {
     private final Context context;
     private final ContentObserver calendarObserver;
 
     EventLiveData(Context context) {
         this.context = context;
-        setValue(new Event());
+        setValue(new StudentEvent(context));
 
         calendarObserver = new ContentObserver(new Handler()) {
             @Override
@@ -55,9 +49,9 @@ public class EventLiveData extends MutableLiveData<Event> {
 
     @SuppressLint("StaticFieldLeak")
     public void replaceWith(final String uriString) {
-        new AsyncTask<Void, Void, Event>() {
+        new AsyncTask<Void, Void, StudentEvent>() {
             @Override
-            protected Event doInBackground(Void... voids) {
+            protected StudentEvent doInBackground(Void... voids) {
                 @SuppressLint("MissingPermission") Cursor cursor = context.getContentResolver().query(
                         Uri.parse(uriString),
                         Event.Data.PROJECTION,
@@ -66,27 +60,24 @@ public class EventLiveData extends MutableLiveData<Event> {
                         null
                 );
 
-                Event event = new Event();
-                if (cursor == null) return event;
+                if (cursor == null) return new StudentEvent(context);
                 if (cursor.getCount() != 1) {
                     Timber.e("Number of events found: %d", cursor.getCount());
                 }
-                if (cursor.getCount() == 0) return event;
+                if (cursor.getCount() == 0) return new StudentEvent(context);
                 cursor.moveToPosition(0);
-                for (int col = 0; col < cursor.getColumnCount(); ++col) {
-                    event.put(cursor.getColumnName(col), cursor.getString(col));
-                }
-                Timber.d("Event found: %s", event);
+                StudentEvent studentEvent = new StudentEvent(cursor, context);
+                Timber.d("Event found: %s", studentEvent);
                 cursor.close();
-                return event;
+                return studentEvent;
             }
 
             @Override
-            protected void onPostExecute(Event event) {
+            protected void onPostExecute(StudentEvent studentEvent) {
                 unregisterContentObserver();
-                setValue(event);
+                setValue(studentEvent);
                 context.getContentResolver().registerContentObserver(
-                        Event.Data.CONTENT_URI.buildUpon().appendPath(event.get(Event.Data._ID)).build(),
+                        Event.Data.CONTENT_URI.buildUpon().appendPath(studentEvent.get(Event.Data._ID)).build(),
                         true, calendarObserver);
             }
         }.execute();
