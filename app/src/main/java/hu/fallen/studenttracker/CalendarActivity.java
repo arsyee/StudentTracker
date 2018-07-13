@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -188,7 +187,6 @@ public class CalendarActivity extends BaseActivity {
 
         Intent intent = new Intent(CalendarActivity.this, EventActivity.class);
         intent.putExtra(EventActivity.EXTRA_KEY.START_TIME.toString(), startTime);
-        intent.putExtra(EventActivity.EXTRA_KEY.END_TIME.toString(), endTime);
         startActivity(intent);
     }
 
