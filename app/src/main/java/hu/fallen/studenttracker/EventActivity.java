@@ -4,13 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import timber.log.Timber;
 
 public class EventActivity extends BaseActivity {
+
+    public enum EXTRA_KEY {
+        URI("uri"),
+        START_TIME("startTime"),
+        END_TIME("endTime");
+        private final String str;
+        EXTRA_KEY(String status) {
+            str = status;
+        }
+        @Override
+        public String toString() {
+            return str;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +39,9 @@ public class EventActivity extends BaseActivity {
         });
 
         Intent intent = getIntent();
-        Timber.d("EventActivity started: %s", intent.getStringExtra("uri"));
+        for (EXTRA_KEY key : EXTRA_KEY.values()) {
+            Timber.d("EventActivity started: %s: %s", key, intent.getSerializableExtra(key.toString()));
+        }
     }
 
 }
