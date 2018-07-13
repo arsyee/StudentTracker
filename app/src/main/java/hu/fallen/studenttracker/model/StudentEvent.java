@@ -24,7 +24,8 @@ public class StudentEvent extends Event {
         long endTime = Long.parseLong(data.get(Data.DTEND));
         long duration = (endTime - startTime) / 60 / 1000;
         long lessonLength = IDs.PREFERENCE.LESSON_LENGTH.getInt(mContext);
-        return (int) (duration / lessonLength);
+        long breakLength = IDs.PREFERENCE.BREAK_LENGTH.getInt(mContext);
+        return (int) ((duration - lessonLength ) / (lessonLength + breakLength)) + 1;
     }
 
 }
