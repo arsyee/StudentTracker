@@ -25,13 +25,13 @@ import hu.fallen.studenttracker.misc.IDs;
 import hu.fallen.studenttracker.model.CalendarModel;
 import hu.fallen.studenttracker.model.Event;
 import hu.fallen.studenttracker.model.Calendar;
-import hu.fallen.studenttracker.model.EventModel;
+import hu.fallen.studenttracker.model.EventListModel;
 import timber.log.Timber;
 
 public class CalendarActivity extends BaseActivity {
 
     private WeekView mWeekView;
-    private EventModel mEventModel;
+    private EventListModel mEventListModel;
     private CalendarModel mCalendarModel;
 
     @Override
@@ -41,7 +41,7 @@ public class CalendarActivity extends BaseActivity {
 
         // Get a reference for the week view in the layout.
         mWeekView = prepareWeekView(R.id.weekView);
-        mEventModel = ViewModelProviders.of(this).get(EventModel.class);
+        mEventListModel = ViewModelProviders.of(this).get(EventListModel.class);
         mCalendarModel = ViewModelProviders.of(this).get(CalendarModel.class);
         mCalendarModel.getCalendars().observe(this, new Observer<List<Calendar>>() {
             @Override
@@ -73,7 +73,7 @@ public class CalendarActivity extends BaseActivity {
                         mWeekView.notifyDatasetChanged();
                     }
                 };
-                for (Event event : mEventModel.getSchedule(newYear, newMonth, CalendarActivity.this, observer).getValue()) {
+                for (Event event : mEventListModel.getEventList(newYear, newMonth, CalendarActivity.this, observer).getValue()) {
                     monthlyList.add(createWeekViewEvent(event));
                 }
                 return monthlyList;
@@ -206,7 +206,7 @@ public class CalendarActivity extends BaseActivity {
     private void showEvent(WeekViewEvent weekViewEvent) {
         Uri eventUri = CalendarContract.Events.CONTENT_URI.buildUpon().appendPath(Long.toString(weekViewEvent.getId())).build();
         String studentCalendarId = PreferenceManager.getDefaultSharedPreferences(CalendarActivity.this).getString(IDs.PREFERENCE.CALENDAR.toString(), null);
-        Event event = mEventModel.getEventById(Long.toString(weekViewEvent.getId()));
+        Event event = mEventListModel.getEventById(Long.toString(weekViewEvent.getId()));
         Timber.d("Opening event: %s (%s - %s)", eventUri, event.get(Event.Data.CALENDAR_ID), studentCalendarId);
         Intent intent;
         if (studentCalendarId != null && studentCalendarId.equals(event.get(Event.Data.CALENDAR_ID))) {

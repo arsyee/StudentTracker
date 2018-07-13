@@ -11,31 +11,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EventModel extends AndroidViewModel {
-    private Map<String, EventLiveList> schedule;
+public class EventListModel extends AndroidViewModel {
+    private Map<String, EventLiveList> monthlyEventList;
 
-    public EventModel(@NonNull Application application) {
+    public EventListModel(@NonNull Application application) {
         super(application);
-        schedule = new HashMap<>();
+        monthlyEventList = new HashMap<>();
     }
 
     @Override
     protected void onCleared() {
-        for (EventLiveList eventLiveList : schedule.values()) {
+        for (EventLiveList eventLiveList : monthlyEventList.values()) {
             eventLiveList.unregisterContentObserver();
         }
         super.onCleared();
     }
 
     public @NonNull
-    EventLiveList getSchedule(int year, int month, LifecycleOwner owner, Observer<List<Event>> observer) {
+    EventLiveList getEventList(int year, int month, LifecycleOwner owner, Observer<List<Event>> observer) {
         String key = getKey(year, month);
-        if (!schedule.containsKey(key)) {
-            EventLiveList scheduleLiveList = new EventLiveList(getApplication(), year, month);
-            scheduleLiveList.observe(owner, observer);
-            schedule.put(key, scheduleLiveList);
+        if (!monthlyEventList.containsKey(key)) {
+            EventLiveList eventLiveList = new EventLiveList(getApplication(), year, month);
+            eventLiveList.observe(owner, observer);
+            monthlyEventList.put(key, eventLiveList);
         }
-        return schedule.get(key);
+        return monthlyEventList.get(key);
     }
 
     @SuppressLint("DefaultLocale")
@@ -45,7 +45,7 @@ public class EventModel extends AndroidViewModel {
 
     public Event getEventById(String id) {
         if (id == null) return null;
-        for (EventLiveList eventLiveList : schedule.values()) {
+        for (EventLiveList eventLiveList : monthlyEventList.values()) {
             for (Event event : eventLiveList.getValue()) {
                 if (id.equals(event.get(Event.Data._ID))) return event;
             }
